@@ -57,6 +57,8 @@ Now the resource is visibile in your admin panel.
 
 ## Configuration
 
+### Routing
+
 By default this package uses Laravel's [fallback routes](https://laravel.com/docs/12.x/routing#fallback-routes)
 to handle redirects. This package's route is automatically added to your app.
 
@@ -69,6 +71,19 @@ for your route:
 ```php
 Route::get('{parameter}',VanOns\Redirector\Actions\RedirectAction::class);
 ```
+
+### Navigation
+
+You can customize the navigation by customizing the translations:
+
+To adjust the label overwrite:
+`trans_choice('filament-redirects::models/redirect.label', 2)`.
+
+To add a navigation group for the resource, change the config value for
+`filament-redirects.add_nav_group`.
+
+To change the name of the group, overwrite
+`trans_choice('filament-redirects::models/redirect.label', 2)`
 
 ## Notes
 

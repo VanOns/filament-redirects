@@ -16,4 +16,5 @@ return [
         '307' => '307 - Temporary redirect',
         '308' => '308 - Permanent redirect',
     ],
+    'navigation-group' => 'Redirects',
 ];
