@@ -16,4 +16,5 @@ return [
         '307' => '307 - Tijdelijk omgeleid',
         '308' => '308 - Permanent omgeleid',
     ],
+    'navigation-group' => 'Redirects',
 ];

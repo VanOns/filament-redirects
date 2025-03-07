@@ -24,6 +24,32 @@ class RedirectResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $recordTitleAttribute = 'from';
+
+    public static function getModelLabel(): string
+    {
+        return trans_choice('filament-redirects::models/redirect.label', 1);
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return trans_choice('filament-redirects::models/redirect.label', 2);
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return trans_choice('filament-redirects::models/redirect.label', 2);
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        if (config('filament-redirects.add_nav_group')) {
+            return __('filament-redirects::general.navigation-group');
+        }
+
+        return null;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
