@@ -1,0 +1,19 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method VanOns\\FilamentRedirects\\Filament\\Resources\\RedirectResource\:\:getNavigationGroup\(\) should return string\|null but returns array\|string\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Filament/Resources/RedirectResource.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Component\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string\|null given\.$#'
+			identifier: argument.type
+			count: 8
+			path: src/Filament/Resources/RedirectResource.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Tables\\Columns\\Column\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string\|null given\.$#'
+			identifier: argument.type
+			count: 6
+			path: src/Filament/Resources/RedirectResource.php
