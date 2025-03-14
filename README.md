@@ -17,7 +17,7 @@ therefore you must add them as repositories to your `composer.json` file:
 "repositories": [
     {
         "type": "path",
-        "url": "packages/filament-redirects"
+        "url": "https://github.com/VanOns/filament-redirects"
     },
     {
         "type": "vcs",
