@@ -6,7 +6,7 @@ use Illuminate\Support\ServiceProvider;
 
 class RedirectsServiceProvider extends ServiceProvider
 {
-    public function boot()
+    public function boot(): void
     {
         $this->loadTranslationsFrom(__DIR__.'/../lang', 'filament-redirects');
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');

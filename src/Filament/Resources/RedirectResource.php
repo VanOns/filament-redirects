@@ -186,6 +186,9 @@ class RedirectResource extends Resource
         ];
     }
 
+    /**
+     * @return Builder<Redirect>
+     */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
