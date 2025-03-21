@@ -17,4 +17,6 @@ return [
         '308' => '308 - Permanent redirect',
     ],
     'navigation-group' => 'Redirects',
+    'regex' => 'Regex',
+    'regex_help' => 'If this is enabled, the "From" value will be treated as a regular expression.',
 ];

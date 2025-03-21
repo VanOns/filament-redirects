@@ -3,6 +3,7 @@
 namespace VanOns\FilamentRedirects\Filament\Resources;
 
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -12,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -63,13 +66,21 @@ class RedirectResource extends Resource
                             ->required(),
                         TextInput::make('to')
                             ->prefix(config('app.url').'/')
-                            ->label(__('filament-redirects::general.to'))
-                            ->required(),
-                        Toggle::make('active')
-                            ->label(__('filament-redirects::general.active'))
-                            ->inline()
-                            ->default(true)
-                            ->required(),
+                            ->label(__('filament-redirects::general.to')),
+                        Grid::make()
+                            ->schema([
+                                Toggle::make('active')
+                                    ->label(__('filament-redirects::general.active'))
+                                    ->inline()
+                                    ->default(true)
+                                    ->required(),
+                                Toggle::make('regex')
+                                    ->label(__('filament-redirects::general.regex'))
+                                    ->helperText(__('filament-redirects::general.regex_help'))
+                                    ->inline()
+                                    ->default(false)
+                                    ->required(),
+                            ])->columns(2),
                     ])
                     ->columnSpan(1),
                 Section::make()
@@ -77,13 +88,7 @@ class RedirectResource extends Resource
                     ->schema([
                         Select::make('status_code')
                             ->label(__('filament-redirects::general.status_code'))
-                            ->options([
-                                301 => __('filament-redirects::general.status_codes.301'),
-                                302 => __('filament-redirects::general.status_codes.302'),
-                                303 => __('filament-redirects::general.status_codes.303'),
-                                307 => __('filament-redirects::general.status_codes.307'),
-                                308 => __('filament-redirects::general.status_codes.308'),
-                            ])
+                            ->options(self::statusCodeOptions())
                             ->searchable()
                             ->required()
                             ->default(301),
@@ -155,7 +160,26 @@ class RedirectResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->reorderable('priority')
+            ->recordUrl(fn ($record) => config('app.url').'/'.$record->from)
             ->filters([
+                TernaryFilter::make('active')
+                    ->label(__('filament-redirects::general.active'))
+                    ->queries(
+                        true: fn (Builder $query) => $query->where('active', '=', true),
+                        false: fn (Builder $query) => $query->where('active', '=', false),
+                        blank: fn (Builder $query) => $query,
+                    ),
+                TernaryFilter::make('regex')
+                    ->label(__('filament-redirects::general.regex'))
+                    ->queries(
+                        true: fn (Builder $query) => $query->where('regex', '=', true),
+                        false: fn (Builder $query) => $query->where('regex', '=', false),
+                        blank: fn (Builder $query) => $query,
+                    ),
+                SelectFilter::make('status_code')
+                    ->label(__('filament-redirects::general.status_code'))
+                    ->options(self::statusCodeOptions()),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
@@ -195,5 +219,17 @@ class RedirectResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function statusCodeOptions(): array
+    {
+        return collect(config('filament-redirects.status_codes', []))
+            ->mapWithKeys(fn ($statusCode) => [
+                $statusCode => __('filament-redirects::general.status_codes.'.$statusCode),
+            ])
+            ->toArray();
     }
 }

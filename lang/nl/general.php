@@ -17,4 +17,6 @@ return [
         '308' => '308 - Permanent omgeleid',
     ],
     'navigation-group' => 'Redirects',
+    'regex' => 'Regex',
+    'regex_help' => 'Als dit is ingeschakeld, wordt de "Van" -waarde als een reguliere expressie behandeld.',
 ];

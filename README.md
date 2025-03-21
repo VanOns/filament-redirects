@@ -84,10 +84,3 @@ To add a navigation group for the resource, change the config value for
 
 To change the name of the group, overwrite
 `trans_choice('filament-redirects::models/redirect.label', 2)`
-
-## Notes
-
-This app only redirects on the first url segment, it is only possible to create
-redirects for the 'possible' part in `https://app.test/possible/impossible/impossible`.
-
-If a redirect exists for `https://app.test/possible`, the app will redirect the user.
