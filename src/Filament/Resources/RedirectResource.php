@@ -18,9 +18,9 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use VanOns\FilamentRedirects\Enums\Type;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages;
-use VanOns\Redirector\Enums\Type;
-use VanOns\Redirector\Models\Redirect;
+use VanOns\FilamentRedirects\Models\Redirect;
 
 class RedirectResource extends Resource
 {
@@ -171,7 +171,9 @@ class RedirectResource extends Resource
             ->recordUrl(function ($record) {
                 return match ($record->type) {
                     Type::Static => config('app.url').'/'.$record->from,
-                    Type::Regex => null
+                    Type::Replace => null,
+                    Type::Match => null,
+                    default => null,
                 };
             })
             ->filters([

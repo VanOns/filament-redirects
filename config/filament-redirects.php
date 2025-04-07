@@ -14,4 +14,8 @@ return [
         307,
         308,
     ],
+    'cache' => [
+        'enabled' => false,
+        'ttl' => 60,
+    ],
 ];

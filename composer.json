@@ -18,7 +18,6 @@
     "require": {
         "php": "^8.2",
         "illuminate/contracts": "^9.28|^10.0|^11.0|^12.0",
-        "van-ons/laravel-redirector": "^0.0.2",
         "filament/filament": "^3.2"
     },
     "require-dev": {
@@ -30,12 +29,6 @@
         "fix": "vendor/bin/php-cs-fixer fix",
         "analyse": "vendor/bin/phpstan analyse"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/VanOns/laravel-redirector"
-        }
-    ],
     "extra": {
         "laravel": {
             "providers": [
