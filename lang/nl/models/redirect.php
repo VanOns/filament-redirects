@@ -4,6 +4,7 @@ return [
     'label' => 'Redirect|Redirects',
     'types' => [
         'static' => 'Statisch',
-        'regex' => 'Regex',
+        'match' => 'Match (reguliere expressie)',
+        'replace' => 'Vervangen',
     ],
 ];
