@@ -62,7 +62,19 @@ To reuse the routing, add `VanOns\FilamentRedirects\Actions\RedirectAction` as a
 for your route:
 
 ```php
-Route::get('{parameter}',VanOns\FilamentRedirects\Actions\RedirectAction::class);
+Route::get('{parameter}',VanOns\FilamentRedirects\Controllers\RedirectController::class);
+```
+
+or use the `VanOns\FilamentRedirects\Actions\RedirectAction` if you want to integrate in a controller:
+```php
+use VanOns\FilamentRedirects\Actions\RedirectAction;
+
+$redirect = (new RedirectAction)();
+if ($redirect) {
+    return $redirect;
+}
+
+abort(404);
 ```
 
 ### Navigation
