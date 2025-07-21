@@ -2,11 +2,8 @@
 
 namespace VanOns\FilamentRedirects\Actions;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Routing\Controller;
-use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -15,7 +12,7 @@ use VanOns\FilamentRedirects\Enums\Keys;
 use VanOns\FilamentRedirects\Enums\Type;
 use VanOns\FilamentRedirects\Models\Redirect;
 
-class RedirectAction extends Controller
+class RedirectAction
 {
     /**
      * @var Collection<int,Redirect>
@@ -23,12 +20,11 @@ class RedirectAction extends Controller
     private Collection $redirects;
 
     /**
-     * @throws BindingResolutionException
      * @throws HttpException
      * @throws NotFoundHttpException
      * @throws HttpResponseException
      */
-    public function __invoke(): RedirectResponse|Redirector
+    public function __invoke(): null|RedirectResponse
     {
         $this->redirects = $this->getRedirects();
 
@@ -38,7 +34,7 @@ class RedirectAction extends Controller
             return $this->redirectTo($redirect);
         }
 
-        abort(404);
+        return null;
     }
 
     private function redirectTo(Redirect $route): RedirectResponse
