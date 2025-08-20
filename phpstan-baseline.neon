@@ -7,7 +7,7 @@ parameters:
 			path: src/Actions/RedirectAction.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,VanOns\\FilamentRedirects\\Models\\Redirect\>\:\:first\(\) expects \(callable\(VanOns\\FilamentRedirects\\Models\\Redirect, int\)\: bool\)\|null, Closure\(VanOns\\FilamentRedirects\\Models\\Redirect\)\: \(0\|1\|bool\|string\) given\.$#'
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,VanOns\\FilamentRedirects\\Models\\Redirect\>\:\:first\(\) expects \(callable\(VanOns\\FilamentRedirects\\Models\\Redirect, int\)\: bool\)\|null, Closure\(VanOns\\FilamentRedirects\\Models\\Redirect\)\: \(0\|1\|bool\) given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Actions/RedirectAction.php
@@ -19,7 +19,7 @@ parameters:
 			path: src/Filament/Resources/RedirectResource.php
 
 		-
-			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Component\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string\|null given\.$#'
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string\|null given\.$#'
 			identifier: argument.type
 			count: 9
 			path: src/Filament/Resources/RedirectResource.php
@@ -37,7 +37,13 @@ parameters:
 			path: src/Filament/Resources/RedirectResource.php
 
 		-
-			message: '#^Binary operation "\.\=" between Illuminate\\Contracts\\Routing\\UrlGenerator\|string and non\-falsy\-string results in an error\.$#'
-			identifier: assignOp.invalid
+			message: '#^Match arm comparison between VanOns\\FilamentRedirects\\Enums\\Type\:\:Replace and VanOns\\FilamentRedirects\\Enums\\Type\:\:Replace is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 1
+			path: src/Models/Redirect.php
+
+		-
+			message: '#^Method VanOns\\FilamentRedirects\\Models\\Redirect\:\:handleRedirectType\(\) has no return type specified\.$#'
+			identifier: missingType.return
 			count: 1
 			path: src/Models/Redirect.php

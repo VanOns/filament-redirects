@@ -2,6 +2,7 @@
 
 namespace VanOns\FilamentRedirects\Models;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +20,7 @@ use VanOns\FilamentRedirects\Enums\Type;
  * @property bool $include_headers
  * @property bool $include_query
  * @property int $hits
- * @property \Carbon\Carbon $last_hit
+ * @property Carbon $last_hit
  * @property bool $active
  * @property int $priority
  * @property Type $type
