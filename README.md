@@ -3,6 +3,18 @@
 Filament-Redirects is a package provides your FilamentPHP app with a resource to
 manage your application's redirects in.
 
+## Compatibility
+
+For certain Filament versions, changes have to be made that render the package backwards incompatible with the previous version.
+Please see the table below to determine which version you need.
+
+| Version                                                            | Filament |
+|--------------------------------------------------------------------|----------|
+| v2 (current)                                                       | \>=4.0   |
+| [v1](https://github.com/VanOns/filament-redirects/tree/release/v1) | <4.0     |
+
+**Please note:** the `main` branch will always be the latest major version.
+
 ## Installation
 
 ### Add the package
@@ -21,11 +33,16 @@ therefore you must add it as a repository to your `composer.json` file:
 
 Now you can install the package: `composer require van-ons/filament-redirects`.
 
-Publish the migrations with `php artisan vendor:publish --tag=vanons-filament-redirects-migrations`,
-and apply them `php artisan migrate`.
+Publish the migrations and apply them.
+```bash
+php artisan vendor:publish --tag=vanons-filament-redirects-migrations
+php artisan migrate
+```
 
-Optionally, you can publish this package's configuration file with:
-`php artisan vendor:publish --tag=vanons-filament-redirects-config`.
+Optionally, you can publish this package's configuration file.
+```bash
+php artisan vendor:publish --tag=vanons-filament-redirects-config
+```
 
 ### Install Filament Plugin
 
@@ -40,8 +57,7 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel
-            ->plugin(RedirectsPlugin::make());
+        return $panel->plugin(RedirectsPlugin::make());
     }
 }
 ```
@@ -81,14 +97,27 @@ abort(404);
 
 You can customize the navigation by customizing the translations:
 
-To adjust the label overwrite:
-`trans_choice('filament-redirects::models/redirect.label', 2)`.
+To adjust the label overwrite
+```php
+trans_choice('filament-redirects::models/redirect.label', 2)
+```
 
-To add a navigation group for the resource, change the config value for
-`filament-redirects.add_nav_group`.
+To add a navigation group for the resource, chain the `navigationGroup` method when registering the plugin.
+```php
+use Filament\Panel;
+use Filament\PanelProvider;
+use VanOns\FilamentRedirects\RedirectsPlugin;
 
-To change the name of the group, overwrite
-`trans_choice('filament-redirects::models/redirect.label', 2)`
+class AdminPanelProvider extends PanelProvider
+{
+    public function panel(Panel $panel): Panel
+    {
+        return $panel->plugin(
+            RedirectsPlugin::make()->navigationGroup('Settings')
+        );
+    }
+}
+```
 
 ## Usage
 
