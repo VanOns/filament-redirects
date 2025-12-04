@@ -5,6 +5,7 @@ namespace VanOns\FilamentRedirects\Filament\Resources;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
+use Filament\Support\Enums\Operation;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Actions\EditAction;
 use Filament\Actions\BulkActionGroup;
@@ -52,15 +53,6 @@ class RedirectResource extends Resource
         return trans_choice('filament-redirects::models/redirect.label', 2);
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        if (config('filament-redirects.add_nav_group')) {
-            return __('filament-redirects::general.navigation-group');
-        }
-
-        return null;
-    }
-
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -89,7 +81,7 @@ class RedirectResource extends Resource
                                     ->selectablePlaceholder(false),
                             ])->columns(2),
                     ])
-                    ->columnSpan(1),
+                    ->columnSpanFull(),
                 Section::make()
                     ->icon('heroicon-o-cog')
                     ->schema([
@@ -108,7 +100,7 @@ class RedirectResource extends Resource
                             ->default(true)
                             ->required(),
                     ])
-                    ->columnSpan(1),
+                    ->columnSpanFull(),
                 Section::make()
                     ->icon('heroicon-o-chart-bar')
                     ->schema([
@@ -119,7 +111,8 @@ class RedirectResource extends Resource
                             ->label(__('filament-redirects::general.last_hit'))
                             ->disabled(),
                     ])
-                    ->columnSpan(1),
+                    ->visibleOn([Operation::View, Operation::Edit])
+                    ->columnSpanFull(),
             ]);
     }
 

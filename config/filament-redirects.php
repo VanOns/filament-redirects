@@ -2,7 +2,6 @@
 
 return [
     'add_route' => env('FILAMENT_REDIRECTS_ADD_ROUTE', true),
-    'add_nav_group' => false,
     /**
      * Make sure you have translations matching the status codes in your
      * language files.
