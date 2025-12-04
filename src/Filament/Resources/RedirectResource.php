@@ -2,15 +2,24 @@
 
 namespace VanOns\FilamentRedirects\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Grid;
+use Filament\Support\Enums\Operation;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\ListRedirects;
+use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\CreateRedirect;
+use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\EditRedirect;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -19,14 +28,13 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use VanOns\FilamentRedirects\Enums\Type;
-use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages;
 use VanOns\FilamentRedirects\Models\Redirect;
 
 class RedirectResource extends Resource
 {
     protected static ?string $model = Redirect::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-arrow-path';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-arrow-path';
 
     protected static ?string $recordTitleAttribute = 'from';
 
@@ -45,19 +53,10 @@ class RedirectResource extends Resource
         return trans_choice('filament-redirects::models/redirect.label', 2);
     }
 
-    public static function getNavigationGroup(): ?string
+    public static function form(Schema $schema): Schema
     {
-        if (config('filament-redirects.add_nav_group')) {
-            return __('filament-redirects::general.navigation-group');
-        }
-
-        return null;
-    }
-
-    public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make()
                     ->icon('heroicon-o-arrows-right-left')
                     ->schema([
@@ -82,7 +81,7 @@ class RedirectResource extends Resource
                                     ->selectablePlaceholder(false),
                             ])->columns(2),
                     ])
-                    ->columnSpan(1),
+                    ->columnSpanFull(),
                 Section::make()
                     ->icon('heroicon-o-cog')
                     ->schema([
@@ -101,7 +100,7 @@ class RedirectResource extends Resource
                             ->default(true)
                             ->required(),
                     ])
-                    ->columnSpan(1),
+                    ->columnSpanFull(),
                 Section::make()
                     ->icon('heroicon-o-chart-bar')
                     ->schema([
@@ -112,7 +111,8 @@ class RedirectResource extends Resource
                             ->label(__('filament-redirects::general.last_hit'))
                             ->disabled(),
                     ])
-                    ->columnSpan(1),
+                    ->visibleOn([Operation::View, Operation::Edit])
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -194,16 +194,16 @@ class RedirectResource extends Resource
                 SelectFilter::make('status_code')
                     ->label(__('filament-redirects::general.status_code'))
                     ->options(self::statusCodeOptions()),
-                Tables\Filters\TrashedFilter::make(),
+                TrashedFilter::make(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -218,9 +218,9 @@ class RedirectResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListRedirects::route('/'),
-            'create' => Pages\CreateRedirect::route('/create'),
-            'edit' => Pages\EditRedirect::route('/{record}/edit'),
+            'index' => ListRedirects::route('/'),
+            'create' => CreateRedirect::route('/create'),
+            'edit' => EditRedirect::route('/{record}/edit'),
         ];
     }
 

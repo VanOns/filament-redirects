@@ -15,17 +15,19 @@ class RedirectsPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        $panel
-            ->resources([
-                RedirectResource::class,
-            ])
-            ->pages([
-            ]);
+        $panel->resources([RedirectResource::class]);
     }
 
     public function boot(Panel $panel): void
     {
-        //
+        // Do nothing
+    }
+
+    public function navigationGroup(?string $navigationGroup): static
+    {
+        RedirectResource::navigationGroup($navigationGroup);
+
+        return $this;
     }
 
     public static function make(): static

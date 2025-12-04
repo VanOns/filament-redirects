@@ -1,7 +1,8 @@
 <?php
 
+use VanOns\FilamentRedirects\Actions\RedirectAction;
 use Illuminate\Support\Facades\Route;
 
 if (config('filament-redirects.add_route')) {
-    Route::fallback(VanOns\FilamentRedirects\Actions\RedirectAction::class);
+    Route::fallback(RedirectAction::class);
 }
