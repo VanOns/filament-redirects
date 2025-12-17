@@ -36,6 +36,8 @@ class RedirectResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-arrow-path';
 
+    protected static string | \UnitEnum | null $navigationGroup = null;
+
     protected static ?string $recordTitleAttribute = 'from';
 
     public static function getModelLabel(): string
