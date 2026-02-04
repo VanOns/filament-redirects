@@ -2,32 +2,32 @@
 
 namespace VanOns\FilamentRedirects\Filament\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Grid;
-use Filament\Support\Enums\Operation;
-use Filament\Tables\Filters\TrashedFilter;
-use Filament\Actions\EditAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\ListRedirects;
-use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\CreateRedirect;
-use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\EditRedirect;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Enums\Operation;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use VanOns\FilamentRedirects\Enums\Type;
+use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\CreateRedirect;
+use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\EditRedirect;
+use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\ListRedirects;
 use VanOns\FilamentRedirects\Models\Redirect;
 
 class RedirectResource extends Resource
@@ -60,6 +60,7 @@ class RedirectResource extends Resource
         return $schema
             ->components([
                 Section::make()
+                    ->columnSpan(1)
                     ->icon('heroicon-o-arrows-right-left')
                     ->schema([
                         TextInput::make('from')
@@ -81,10 +82,11 @@ class RedirectResource extends Resource
                                     ->options(self::getTypeOptions())
                                     ->default(Type::Static)
                                     ->selectablePlaceholder(false),
-                            ])->columns(2),
+                            ])->columns(),
                     ])
                     ->columnSpanFull(),
                 Section::make()
+                    ->columnSpan(1)
                     ->icon('heroicon-o-cog')
                     ->schema([
                         Select::make('status_code')
@@ -104,6 +106,7 @@ class RedirectResource extends Resource
                     ])
                     ->columnSpanFull(),
                 Section::make()
+                    ->columnSpan(1)
                     ->icon('heroicon-o-chart-bar')
                     ->schema([
                         TextInput::make('hits')
