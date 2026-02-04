@@ -67,7 +67,7 @@ class Redirect extends Model
     /**
      * @throws BindingResolutionException
      */
-    public function createUrl(): string
+    public function createUrl(): ?string
     {
         $url = $this->handleRedirectType();
 
@@ -79,7 +79,7 @@ class Redirect extends Model
             }
         }
 
-        return $url;
+        return $url ?? url ('/');
     }
 
     private function handleRedirectType()

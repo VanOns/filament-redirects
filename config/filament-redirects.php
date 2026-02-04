@@ -13,6 +13,10 @@ return [
         307,
         308,
     ],
+    /**
+     * The default status code inside the Filament Form. To change the database default, update the migration file or create a new migration.
+     */
+    'default_status_code' => 301,
     'cache' => [
         'enabled' => false,
         'ttl' => 60,
