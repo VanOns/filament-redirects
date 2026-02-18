@@ -14,6 +14,7 @@ return [
         307,
         308,
     ],
+    'default_status_code' => 301,
     'cache' => [
         'enabled' => false,
         'ttl' => 60,

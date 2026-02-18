@@ -15,12 +15,22 @@ class RedirectsServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/filament-redirects.php', 'filament-redirects');
 
         if ($this->app->runningInConsole()) {
-            $this->publishesMigrations(
-                paths: [
-                    __DIR__.'/../database/migrations' => database_path('migrations'),
-                ],
-                groups: 'vanons-filament-redirects-migrations',
-            );
+            if (method_exists($this, 'publishesMigrations')) {
+                $this->publishesMigrations(
+                    paths: [
+                        __DIR__.'/../database/migrations' => database_path('migrations'),
+                    ],
+                    groups: 'vanons-filament-redirects-migrations',
+                );
+            } else {
+                // Laravel < 10
+                $this->publishes(
+                    paths: [
+                        __DIR__.'/../database/migrations' => database_path('migrations'),
+                    ],
+                    groups: 'vanons-filament-redirects-migrations',
+                );
+            }
 
             $this->publishes(
                 paths: [

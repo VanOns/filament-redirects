@@ -20,4 +20,6 @@ return [
     'regex' => 'Regex',
     'regex_help' => 'If this is enabled, the "From" value will be treated as a regular expression.',
     'type' => 'Type',
+    'open' => 'Open',
+    'redirect_details' => 'Redirect details',
 ];

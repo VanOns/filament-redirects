@@ -2,8 +2,8 @@
 
 namespace VanOns\FilamentRedirects\Filament\Resources;
 
+use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -18,15 +18,21 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Carbon;
 use VanOns\FilamentRedirects\Enums\Type;
+use VanOns\FilamentRedirects\Filament\Actions\OpenAction;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages;
 use VanOns\FilamentRedirects\Models\Redirect;
+use Filament\Forms\Components\Actions\Action as FormAction;
+
 
 class RedirectResource extends Resource
 {
     protected static ?string $model = Redirect::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-arrow-path';
+
+     protected static ?string $navigationGroup = null;
 
     protected static ?string $recordTitleAttribute = 'from';
 
@@ -58,40 +64,43 @@ class RedirectResource extends Resource
     {
         return $form
             ->schema([
-                Section::make()
+                Section::make(__('filament-redirects::general.redirect_details'))
+                    ->columnSpan(1)
                     ->icon('heroicon-o-arrows-right-left')
+                    ->columns()
                     ->schema([
                         TextInput::make('from')
-                            ->prefix(config('app.url').'/')
+                            ->columnSpanFull()
                             ->label(__('filament-redirects::general.from'))
+                            ->prefix(config('app.url').'/')
+                            ->reactive()
+                            ->suffixAction(OpenAction::make())
                             ->required(),
                         TextInput::make('to')
+                            ->columnSpanFull()
+                            ->label(__('filament-redirects::general.to'))
                             ->prefix(config('app.url').'/')
-                            ->label(__('filament-redirects::general.to')),
-                        Grid::make()
-                            ->schema([
-                                Toggle::make('active')
-                                    ->label(__('filament-redirects::general.active'))
-                                    ->inline()
-                                    ->default(true)
-                                    ->required(),
-                                Select::make('type')
-                                    ->label(__('filament-redirects::general.type'))
-                                    ->options(self::getTypeOptions())
-                                    ->default(Type::Static)
-                                    ->selectablePlaceholder(false),
-                            ])->columns(2),
+                            ->reactive()
+                            ->suffixAction(OpenAction::make()),
+                        Select::make('type')
+                            ->label(__('filament-redirects::general.type'))
+                            ->options(self::getTypeOptions())
+                            ->default(Type::Static)
+                            ->selectablePlaceholder(false),
                     ])
                     ->columnSpan(1),
                 Section::make()
+                    ->columnSpan(1)
                     ->icon('heroicon-o-cog')
                     ->schema([
+                        Toggle::make('active')
+                            ->default(true),
                         Select::make('status_code')
                             ->label(__('filament-redirects::general.status_code'))
                             ->options(self::statusCodeOptions())
                             ->searchable()
                             ->required()
-                            ->default(301),
+                            ->default(config('filament-redirects.default_status_code', 301)),
                         Toggle::make('include_query')
                             ->label(__('filament-redirects::general.include_query'))
                             ->default(true)
@@ -103,6 +112,7 @@ class RedirectResource extends Resource
                     ])
                     ->columnSpan(1),
                 Section::make()
+                    ->columnSpan(1)
                     ->icon('heroicon-o-chart-bar')
                     ->schema([
                         TextInput::make('hits')
@@ -110,7 +120,17 @@ class RedirectResource extends Resource
                             ->disabled(),
                         DateTimePicker::make('last_hit')
                             ->label(__('filament-redirects::general.last_hit'))
-                            ->disabled(),
+                            ->placeholder('-')
+                            ->disabled()
+                            ->helperText(function ($state) {
+                                if (!$state) {
+                                    return '-';
+                                }
+
+                                $dt = $state instanceof Carbon ? $state : Carbon::parse($state);
+
+                                return $dt->diffForHumans();
+                            })
                     ])
                     ->columnSpan(1),
             ]);
@@ -168,14 +188,6 @@ class RedirectResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->reorderable('priority')
-            ->recordUrl(function ($record) {
-                return match ($record->type) {
-                    Type::Static => config('app.url').'/'.$record->from,
-                    Type::Replace => null,
-                    Type::Match => null,
-                    default => null,
-                };
-            })
             ->filters([
                 TernaryFilter::make('active')
                     ->label(__('filament-redirects::general.active'))
@@ -198,6 +210,10 @@ class RedirectResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Action::make('open')
+                    ->label(__('filament-redirects::general.open'))
+                    ->icon('heroicon-s-arrow-top-right-on-square')
+                    ->url(fn (Redirect $record) => url($record->from ?? '/'), true)
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

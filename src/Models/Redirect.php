@@ -30,19 +30,16 @@ class Redirect extends Model
 
     protected $guarded = ['id'];
 
-    protected function casts(): array
-    {
-        return [
-            'active' => 'boolean',
-            'hits' => 'integer',
-            'include_headers' => 'boolean',
-            'include_query' => 'boolean',
-            'last_hit' => 'datetime',
-            'priority' => 'integer',
-            'status_code' => 'integer',
-            'type' => Type::class,
-        ];
-    }
+    protected $casts = [
+        'active' => 'boolean',
+        'hits' => 'integer',
+        'include_headers' => 'boolean',
+        'include_query' => 'boolean',
+        'last_hit' => 'datetime',
+        'priority' => 'integer',
+        'status_code' => 'integer',
+        'type' => Type::class,
+    ];
 
     public function hit(): bool
     {

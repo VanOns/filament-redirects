@@ -20,4 +20,6 @@ return [
     'regex' => 'Regex',
     'regex_help' => 'Als dit is ingeschakeld, wordt de "Van" -waarde als een reguliere expressie behandeld.',
     'type' => 'Type',
+    'open' => 'Open',
+    'redirect_details' => 'Redirect details',
 ];
