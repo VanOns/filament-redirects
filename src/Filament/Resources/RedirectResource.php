@@ -196,13 +196,9 @@ class RedirectResource extends Resource
                         false: fn (Builder $query) => $query->where('active', '=', false),
                         blank: fn (Builder $query) => $query,
                     ),
-                TernaryFilter::make('regex')
-                    ->label(__('filament-redirects::general.regex'))
-                    ->queries(
-                        true: fn (Builder $query) => $query->where('regex', '=', true),
-                        false: fn (Builder $query) => $query->where('regex', '=', false),
-                        blank: fn (Builder $query) => $query,
-                    ),
+                SelectFilter::make('type')
+                    ->label(__('filament-redirects::general.type'))
+                    ->options(self::getTypeOptions()),
                 SelectFilter::make('status_code')
                     ->label(__('filament-redirects::general.status_code'))
                     ->options(self::statusCodeOptions()),
