@@ -2,7 +2,9 @@
 
 namespace VanOns\FilamentRedirects;
 
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider;
+use VanOns\FilamentRedirects\Middleware\RedirectMiddleware;
 
 class RedirectsServiceProvider extends ServiceProvider
 {
@@ -13,6 +15,10 @@ class RedirectsServiceProvider extends ServiceProvider
         $this->loadTranslationsFrom(__DIR__.'/../lang', 'filament-redirects');
 
         $this->mergeConfigFrom(__DIR__.'/../config/filament-redirects.php', 'filament-redirects');
+
+        if (config('filament-redirects.add_middleware', true)) {
+            $this->app->make(Kernel::class)->pushMiddleware(RedirectMiddleware::class);
+        }
 
         if ($this->app->runningInConsole()) {
             if (method_exists($this, 'publishesMigrations')) {

@@ -52,20 +52,25 @@ Now the resource is visibile in your admin panel.
 
 ### Routing
 
-By default this package uses Laravel's [fallback routes](https://laravel.com/docs/12.x/routing#fallback-routes)
-to handle redirects. This package's route is automatically added to your app.
+The `RedirectMiddleware` is automatically registered by the package and runs on every request.
+When a matching redirect rule is found it redirects the visitor, otherwise the request passes
+through unchanged.
 
-If you would like to disable this, you can turn it off in the config, or set
-`FILAMENT_REDIRECTS_ADD_ROUTE` to false in your `.env` file.
+If you would like to disable this, set `add_middleware` to `false` in the config, or add
+`FILAMENT_REDIRECTS_ADD_MIDDLEWARE=false` to your `.env` file.
 
-To reuse the routing, add `VanOns\FilamentRedirects\Actions\RedirectAction` as a handler
-for your route:
+Alternatively, you can use Laravel's [fallback route](https://laravel.com/docs/12.x/routing#fallback-routes)
+instead of the middleware. However, this is **not recommended** — a fallback route only triggers when
+no other route matches, meaning requests to existing but unresolved routes (e.g. a route that returns a
+404 itself) will never reach the redirect logic. The middleware runs on every request regardless, so it
+catches a much broader set of cases.
 
-```php
-Route::get('{parameter}',VanOns\FilamentRedirects\Controllers\RedirectController::class);
-```
+To enable the fallback route, set `add_route` to `true` in the config, or add
+`FILAMENT_REDIRECTS_ADD_ROUTE=true` to your `.env` file.
 
-or use the `VanOns\FilamentRedirects\Actions\RedirectAction` if you want to integrate in a controller:
+If you want to integrate the redirect logic manually inside a controller or route, you can use
+`VanOns\FilamentRedirects\Actions\RedirectAction` directly:
+
 ```php
 use VanOns\FilamentRedirects\Actions\RedirectAction;
 
@@ -92,9 +97,47 @@ To change the name of the group, overwrite
 
 ## Usage
 
-There are three supported redirect types, in order of priority:
+There are three supported redirect types, evaluated in priority order:
 
-- Static: a static url to a static destination.
-- Match: a regular expression to a static destination.
-- Replace: Replace a segment of a url with something else.
+### Static
+
+An exact URL match. The `from` value is compared literally against the current request path.
+If it matches, the visitor is redirected to the `to` value.
+
+| Field  | Value            |
+|--------|------------------|
+| `from` | `old-page`       |
+| `to`   | `new-page`       |
+
+A request to `/old-page` will redirect to `/new-page`.
+
+---
+
+### Match
+
+The `from` value is used as a regular expression (PCRE, without delimiters) and tested against
+the current request path. If it matches, the visitor is redirected to the static `to` value.
+The destination is always a fixed URL — captured groups are not interpolated.
+
+| Field  | Value                  |
+|--------|------------------------|
+| `from` | `blog/[0-9]+/.*`       |
+| `to`   | `blog`                 |
+
+A request to `/blog/123/my-old-post` matches the pattern and redirects to `/blog`.
+
+---
+
+### Replace
+
+The `from` value is matched as a literal substring of the request path using `str_contains`.
+If it is found, `str_replace` is used to swap the `from` segment with the `to` segment in the
+current path, and the visitor is redirected to the resulting URL.
+
+| Field  | Value       |
+|--------|-------------|
+| `from` | `en/blog`   |
+| `to`   | `nl/blog`   |
+
+A request to `/en/blog/my-post` will redirect to `/nl/blog/my-post`.
 
