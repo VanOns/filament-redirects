@@ -92,7 +92,7 @@ class RedirectAction
         return $this->redirects->first(function (Redirect $redirect) {
             return match ($redirect->type) {
                 Type::Static => $redirect->from === $this->path,
-                Type::Match => preg_match("/{$redirect->from}/", $this->path),
+                Type::Match => preg_match('/' . str_replace('/', '\/', $redirect->from) . '/', $this->path),
                 Type::Replace => str_contains($redirect->from, $this->path),
             };
         });
