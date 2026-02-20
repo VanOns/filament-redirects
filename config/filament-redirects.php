@@ -1,7 +1,8 @@
 <?php
 
 return [
-    'add_route' => env('FILAMENT_REDIRECTS_ADD_ROUTE', true),
+    'add_middleware' => env('FILAMENT_REDIRECTS_ADD_MIDDLEWARE', true),
+    'add_route' => env('FILAMENT_REDIRECTS_ADD_ROUTE', false),
     /**
      * Make sure you have translations matching the status codes in your
      * language files.
