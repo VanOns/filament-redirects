@@ -23,8 +23,6 @@ use VanOns\FilamentRedirects\Enums\Type;
 use VanOns\FilamentRedirects\Filament\Actions\OpenAction;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages;
 use VanOns\FilamentRedirects\Models\Redirect;
-use Filament\Forms\Components\Actions\Action as FormAction;
-
 
 class RedirectResource extends Resource
 {
@@ -32,7 +30,7 @@ class RedirectResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-arrow-path';
 
-     protected static ?string $navigationGroup = null;
+    protected static ?string $navigationGroup = null;
 
     protected static ?string $recordTitleAttribute = 'from';
 
@@ -130,7 +128,7 @@ class RedirectResource extends Resource
                                 $dt = $state instanceof Carbon ? $state : Carbon::parse($state);
 
                                 return $dt->diffForHumans();
-                            })
+                            }),
                     ])
                     ->columnSpan(1),
             ]);
@@ -209,7 +207,7 @@ class RedirectResource extends Resource
                 Action::make('open')
                     ->label(__('filament-redirects::general.open'))
                     ->icon('heroicon-s-arrow-top-right-on-square')
-                    ->url(fn (Redirect $record) => url($record->from ?? '/'), true)
+                    ->url(fn (Redirect $record) => url($record->from ?? '/'), true),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
