@@ -22,4 +22,6 @@ return [
     'type' => 'Type',
     'open' => 'Open',
     'redirect_details' => 'Redirect details',
+    'import_success' => 'Uw redirect import is voltooid en :successful_rows rijen zijn geïmporteerd.',
+    'rows_failed' => ' :failed_rows rijen konden niet worden geïmporteerd.',
 ];
