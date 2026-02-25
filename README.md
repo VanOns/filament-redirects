@@ -170,3 +170,39 @@ current path, and the visitor is redirected to the resulting URL.
 
 A request to `/en/blog/my-post` will redirect to `/nl/blog/my-post`.
 
+## Importing
+
+The package includes a built-in CSV importer powered by [Filament's Import Action](https://filamentphp.com/docs/4.x/actions/import).
+You can find the import button in the top-right corner of the redirects resource list.
+
+### CSV columns
+
+The following columns are supported in the CSV file:
+
+| Column            | Required | Values                            | Description                                                               |
+|-------------------|----------|-----------------------------------|---------------------------------------------------------------------------|
+| `from`            | yes      | string (max 255)                  | The source path (leading/trailing slashes are trimmed automatically)      |
+| `to`              | yes      | string (max 255)                  | The destination path (leading/trailing slashes are trimmed automatically) |
+| `type`            | yes      | `static`, `match`, `replace`      | The redirect type                                                         |
+| `status_code`     | yes      | `301`, `302`, `303`, `307`, `308` | The HTTP status code to use for the redirect                              |
+| `include_headers` | yes      | `true`/`false` (`1`/`0`)          | Whether to forward the original request headers                           |
+| `include_query`   | yes      | `true`/`false` (`1`/`0`)          | Whether to forward the original query string                              |
+
+### Queue & notifications table
+
+Imports are processed using Laravel queues. When your queue connection is not `sync`, they are
+processed in the background. When an import finishes, Filament sends a database notification to
+the user who triggered it. For this to work, your application must have the **notifications table**
+present in the database.
+
+If you haven't created it yet, run:
+
+```bash
+php artisan make:notifications-table
+php artisan migrate
+```
+
+> **Note:** Without the notifications table, completed import notifications will fail and you
+> will not be informed when the import has finished. See the
+> [Filament import documentation](https://filamentphp.com/docs/4.x/actions/import) for more details.
+
