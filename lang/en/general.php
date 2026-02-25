@@ -22,4 +22,6 @@ return [
     'type' => 'Type',
     'open' => 'Open',
     'redirect_details' => 'Redirect details',
+    'import_success' => 'Your page import has completed and :successful_rows rows imported.',
+    'rows_failed' => ' :failed_rows rows failed to import.',
 ];
