@@ -79,7 +79,7 @@ class Redirect extends Model
             }
         }
 
-        return $url ?? url ('/');
+        return $url ?? url('/');
     }
 
     private function handleRedirectType()

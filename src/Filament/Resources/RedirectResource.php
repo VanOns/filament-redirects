@@ -208,7 +208,7 @@ class RedirectResource extends Resource
                 Action::make('open')
                     ->label(__('filament-redirects::general.open'))
                     ->icon('heroicon-s-arrow-top-right-on-square')
-                    ->url(fn (Redirect $record) => url($record->from ?? '/'), true)
+                    ->url(fn (Redirect $record) => url($record->from ?? '/'), true),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
