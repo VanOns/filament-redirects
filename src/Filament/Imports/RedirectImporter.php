@@ -6,7 +6,9 @@ use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
 use Illuminate\Support\Number;
+use Illuminate\Validation\ValidationException;
 use VanOns\FilamentRedirects\Models\Redirect;
+use VanOns\FilamentRedirects\Rules\NotSelfRedirect;
 
 class RedirectImporter extends Importer
 {
@@ -36,6 +38,20 @@ class RedirectImporter extends Importer
                 ->label(__('filament-redirects::general.include_query'))
                 ->rules(['required', 'boolean']),
         ];
+    }
+
+    public function beforeSave(): void
+    {
+        $rule = new NotSelfRedirect($this->data['from'] ?? null);
+
+        $validator = validator(
+            ['to' => $this->data['to'] ?? null],
+            ['to' => $rule],
+        );
+
+        if ($validator->fails()) {
+            throw ValidationException::withMessages($validator->errors()->toArray());
+        }
     }
 
     public function resolveRecord(): Redirect

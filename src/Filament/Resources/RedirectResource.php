@@ -14,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Operation;
 use Filament\Tables\Columns\IconColumn;
@@ -25,6 +26,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use VanOns\FilamentRedirects\Enums\Type;
+use VanOns\FilamentRedirects\Rules\NotSelfRedirect;
 use VanOns\FilamentRedirects\Filament\Actions\OpenAction;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\CreateRedirect;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\EditRedirect;
@@ -85,6 +87,7 @@ class RedirectResource extends Resource
                             ->label(__('filament-redirects::general.to'))
                             ->prefix(config('app.url').'/')
                             ->reactive()
+                            ->rule(fn (Get $get) => new NotSelfRedirect($get('from')))
                             ->suffixAction(OpenAction::make()),
                         Select::make('type')
                             ->label(__('filament-redirects::general.type'))
