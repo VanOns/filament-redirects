@@ -24,4 +24,6 @@ return [
     'redirect_details' => 'Redirect details',
     'import_success' => 'Your redirect import has completed and :successful_rows rows imported.',
     'rows_failed' => ' :failed_rows rows failed to import.',
+    'from_equals_to' => 'The "To" field cannot be the same as the "From" field.',
+    'circular_redirect' => 'This redirect creates a circular chain.',
 ];

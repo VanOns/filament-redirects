@@ -24,4 +24,6 @@ return [
     'redirect_details' => 'Redirect details',
     'import_success' => 'Uw redirect import is voltooid en :successful_rows rijen zijn geïmporteerd.',
     'rows_failed' => ' :failed_rows rijen konden niet worden geïmporteerd.',
+    'from_equals_to' => 'Het "Naar" veld mag niet hetzelfde zijn als het "Van" veld.',
+    'circular_redirect' => 'Deze redirect veroorzaakt een circulaire keten.',
 ];
