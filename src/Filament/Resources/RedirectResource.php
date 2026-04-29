@@ -26,6 +26,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use VanOns\FilamentRedirects\Enums\Type;
+use VanOns\FilamentRedirects\Rules\NoCircularRedirect;
 use VanOns\FilamentRedirects\Rules\NotSelfRedirect;
 use VanOns\FilamentRedirects\Filament\Actions\OpenAction;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\CreateRedirect;
@@ -88,6 +89,7 @@ class RedirectResource extends Resource
                             ->prefix(config('app.url').'/')
                             ->reactive()
                             ->rule(fn (Get $get) => new NotSelfRedirect($get('from')))
+                            ->rule(fn (Get $get) => new NoCircularRedirect($get('from')))
                             ->suffixAction(OpenAction::make()),
                         Select::make('type')
                             ->label(__('filament-redirects::general.type'))

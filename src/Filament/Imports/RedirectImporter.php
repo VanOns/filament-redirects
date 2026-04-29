@@ -8,6 +8,7 @@ use Filament\Actions\Imports\Models\Import;
 use Illuminate\Support\Number;
 use Illuminate\Validation\ValidationException;
 use VanOns\FilamentRedirects\Models\Redirect;
+use VanOns\FilamentRedirects\Rules\NoCircularRedirect;
 use VanOns\FilamentRedirects\Rules\NotSelfRedirect;
 
 class RedirectImporter extends Importer
@@ -42,11 +43,11 @@ class RedirectImporter extends Importer
 
     public function beforeSave(): void
     {
-        $rule = new NotSelfRedirect($this->data['from'] ?? null);
+        $from = $this->data['from'] ?? null;
 
         $validator = validator(
             ['to' => $this->data['to'] ?? null],
-            ['to' => $rule],
+            ['to' => [new NotSelfRedirect($from), new NoCircularRedirect($from)]],
         );
 
         if ($validator->fails()) {
