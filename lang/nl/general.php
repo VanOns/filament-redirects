@@ -3,6 +3,8 @@
 return [
     'from' => 'Van',
     'to' => 'Naar',
+    'category' => 'Categorie',
+    'title' => 'Titel',
     'active' => 'Actief',
     'status_code' => 'Status code',
     'include_query' => 'Query overnemen',

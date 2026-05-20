@@ -24,6 +24,8 @@ use VanOns\FilamentRedirects\Enums\Type;
  * @property bool $active
  * @property int $priority
  * @property Type $type
+ * @property string|null $category
+ * @property string|null $title
  */
 class Redirect extends Model
 {

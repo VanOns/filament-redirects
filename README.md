@@ -187,6 +187,8 @@ The following columns are supported in the CSV file:
 | `status_code`     | yes      | `301`, `302`, `303`, `307`, `308` | The HTTP status code to use for the redirect                              |
 | `include_headers` | yes      | `true`/`false` (`1`/`0`)          | Whether to forward the original request headers                           |
 | `include_query`   | yes      | `true`/`false` (`1`/`0`)          | Whether to forward the original query string                              |
+| `category`        | no       | string (max 255)                  | Optional category used to group and filter redirects                      |
+| `title`           | no       | string (max 255)                  | Optional human-readable label giving the redirect extra context           |
 
 ### Queue & notifications table
 
