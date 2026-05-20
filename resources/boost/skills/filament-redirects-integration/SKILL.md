@@ -27,6 +27,8 @@ Skip this skill for plain admin-panel CRUD through the shipped Filament resource
 | `from` | string(255) | yes | Path without leading slash. For `match`, this is a regex without delimiters. For `replace`, a literal substring. |
 | `to` | string(255) | nullable | Destination path. For `match`/`replace` semantics see Type table below. |
 | `type` | `Type` enum | yes | `Type::Static` / `Type::Match` / `Type::Replace`. |
+| `category` | string(255) | nullable | Optional tag used to group/filter redirects in the resource. Not used in matching. |
+| `title` | string(255) | nullable | Optional human-readable label for the redirect. Not used in matching. |
 | `status_code` | int | yes (default 301) | Must be one of `config('filament-redirects.status_codes')`. |
 | `include_headers` | bool | yes (default true) | Forwards original request headers on redirect. |
 | `include_query` | bool | yes (default true) | Appends current query string to the destination. |
@@ -143,6 +145,8 @@ The shipped `RedirectImporter` (used by the list-page Import button) requires th
 | `status_code` | yes | one of `301,302,303,307,308` |
 | `include_headers` | yes | boolean (`true`/`false`/`1`/`0`) |
 | `include_query` | yes | boolean (`true`/`false`/`1`/`0`) |
+| `category` | no | string, max 255. Trimmed. |
+| `title` | no | string, max 255. Trimmed. |
 
 Imports run on the queue. For non-`sync` queues, the user needs Laravel's notifications table:
 

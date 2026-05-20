@@ -100,6 +100,19 @@ class RedirectResource extends Resource
                     ->columnSpanFull(),
                 Section::make()
                     ->columnSpan(1)
+                    ->icon('heroicon-o-tag')
+                    ->schema([
+                        TextInput::make('title')
+                            ->label(__('filament-redirects::general.title'))
+                            ->maxLength(255),
+                        TextInput::make('category')
+                            ->label(__('filament-redirects::general.category'))
+                            ->datalist(fn () => array_keys(self::categoryOptions()))
+                            ->maxLength(255),
+                    ])
+                    ->columnSpanFull(),
+                Section::make()
+                    ->columnSpan(1)
                     ->icon('heroicon-o-cog')
                     ->schema([
                         Select::make('status_code')
@@ -140,11 +153,12 @@ class RedirectResource extends Resource
             ->columns([
                 TextColumn::make('from')
                     ->label(__('filament-redirects::general.from'))
+                    ->description(fn (Redirect $record) => $record->title)
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(['from', 'title']),
                 TextColumn::make('to')
                     ->label(__('filament-redirects::general.to'))
-                    ->state(fn ($record) => $record->to ?? '/')
+                    ->state(fn (Redirect $record) => $record->to ?? '/')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('type')
@@ -200,6 +214,10 @@ class RedirectResource extends Resource
                 SelectFilter::make('type')
                     ->label(__('filament-redirects::general.type'))
                     ->options(self::getTypeOptions()),
+                SelectFilter::make('category')
+                    ->label(__('filament-redirects::general.category'))
+                    ->options(fn () => self::categoryOptions())
+                    ->searchable(),
                 SelectFilter::make('status_code')
                     ->label(__('filament-redirects::general.status_code'))
                     ->options(self::statusCodeOptions()),
@@ -273,5 +291,21 @@ class RedirectResource extends Resource
                 $type->value => __("filament-redirects::models/redirect.types.{$type->value}"),
             ])
             ->toArray();
+    }
+
+    /**
+     * Distinct, non-empty categories currently stored on redirects.
+     *
+     * @return array<string, string>
+     */
+    public static function categoryOptions(): array
+    {
+        return Redirect::query()
+            ->whereNotNull('category')
+            ->where('category', '!=', '')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category', 'category')
+            ->all();
     }
 }

@@ -38,6 +38,14 @@ class RedirectImporter extends Importer
             ImportColumn::make('include_query')
                 ->label(__('filament-redirects::general.include_query'))
                 ->rules(['required', 'boolean']),
+            ImportColumn::make('category')
+                ->label(__('filament-redirects::general.category'))
+                ->castStateUsing(fn (?string $state) => empty($state) ? null : trim($state))
+                ->rules(['nullable', 'string', 'max:255']),
+            ImportColumn::make('title')
+                ->label(__('filament-redirects::general.title'))
+                ->castStateUsing(fn (?string $state) => empty($state) ? null : trim($state))
+                ->rules(['nullable', 'string', 'max:255']),
         ];
     }
 

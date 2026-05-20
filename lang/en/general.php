@@ -3,6 +3,8 @@
 return [
     'from' => 'From',
     'to' => 'To',
+    'category' => 'Category',
+    'title' => 'Title',
     'active' => 'Active',
     'status_code' => 'Status code',
     'include_query' => 'Include query',
