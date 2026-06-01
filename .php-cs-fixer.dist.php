@@ -2,18 +2,13 @@
 
 use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 
-$finder = (new PhpCsFixer\Finder)
+$finder = (new PhpCsFixer\Finder())
     ->in(__DIR__)
     ->exclude([
-        'example',
-        'node_modules',
-        'public',
-        'resources',
         'vendor',
-        'webpack',
     ]);
 
-return (new PhpCsFixer\Config)
+return (new PhpCsFixer\Config())
     ->setParallelConfig(ParallelConfigFactory::detect())
     ->setRules([
         '@PSR12' => true,
@@ -26,5 +21,6 @@ return (new PhpCsFixer\Config)
         'single_quote' => true,
         'trailing_comma_in_multiline' => true,
         'phpdoc_line_span' => true,
+        'ordered_imports' => true,
     ])
     ->setFinder($finder);
