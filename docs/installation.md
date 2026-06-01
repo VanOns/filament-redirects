@@ -1,27 +1,19 @@
 # Installation
 
-## Requirements
-
-- PHP ^8.2
-- Laravel ^11.0 | ^12.0 | ^13.0
-- Filament ^4.0 | ^5.0
-
-## Install the package
+Start by installing the package via Composer:
 
 ```bash
-composer require van-ons/filament-redirects
+composer require van-ons/filament-redirects:^2.0
 ```
 
-## Publish and run migrations
+Next, publish and run the migrations:
 
-```bash
+```sh
 php artisan vendor:publish --tag=vanons-filament-redirects-migrations
 php artisan migrate
 ```
 
-## Register the plugin
-
-Add the plugin to your Filament panel provider:
+Finally, add the plugin to your Filament panel provider:
 
 ```php
 use Filament\Panel;
@@ -37,7 +29,7 @@ class AdminPanelProvider extends PanelProvider
 }
 ```
 
-## Optional: publish config
+If needed, you can also publish the configuration file:
 
 ```bash
 php artisan vendor:publish --tag=vanons-filament-redirects-config

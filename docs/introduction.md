@@ -1,6 +1,6 @@
 # Introduction
 
-Filament Redirects is a [FilamentPHP](https://filamentphp.com) package that adds a resource to your admin panel for managing URL redirects.
+A Filament package to manage redirects in your application.
 
 ## Features
 
