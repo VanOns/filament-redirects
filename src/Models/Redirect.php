@@ -22,7 +22,7 @@ use VanOns\FilamentRedirects\Enums\Type;
  * @property int $hits
  * @property Carbon $last_hit
  * @property bool $active
- * @property int $priority
+ * @property int|null $priority
  * @property Type $type
  * @property string|null $category
  * @property string|null $title
@@ -89,7 +89,6 @@ class Redirect extends Model
         return match ($this->type) {
             Type::Static, Type::Match => $this->to,
             Type::Replace => str_replace($this->from, $this->to, $path),
-            default => config('app.url'),
         };
     }
 
