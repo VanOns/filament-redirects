@@ -26,13 +26,13 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use VanOns\FilamentRedirects\Enums\Type;
-use VanOns\FilamentRedirects\Rules\NoCircularRedirect;
-use VanOns\FilamentRedirects\Rules\NotSelfRedirect;
 use VanOns\FilamentRedirects\Filament\Actions\OpenAction;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\CreateRedirect;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\EditRedirect;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\ListRedirects;
 use VanOns\FilamentRedirects\Models\Redirect;
+use VanOns\FilamentRedirects\Rules\NoCircularRedirect;
+use VanOns\FilamentRedirects\Rules\NotSelfRedirect;
 
 class RedirectResource extends Resource
 {

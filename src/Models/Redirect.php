@@ -69,14 +69,14 @@ class Redirect extends Model
     /**
      * @throws BindingResolutionException
      */
-    public function createUrl(): ?string
+    public function createUrl(?string $path = null): ?string
     {
-        $url = $this->handleRedirectType();
+        $url = $this->handleRedirectType($path ?? request()->path());
 
         if ($this->include_query) {
             $query = request()->getQueryString();
 
-            if (strlen($query) > 0) {
+            if (!empty($query)) {
                 $url .= '?'.$query;
             }
         }
@@ -84,12 +84,11 @@ class Redirect extends Model
         return $url ?? url('/');
     }
 
-    private function handleRedirectType()
+    private function handleRedirectType(string $path)
     {
         return match ($this->type) {
-            Type::Static => $this->to,
-            Type::Match => $this->to,
-            Type::Replace => str_replace($this->from, $this->to, request()->path()),
+            Type::Static, Type::Match => $this->to,
+            Type::Replace => str_replace($this->from, $this->to, $path),
             default => config('app.url'),
         };
     }
