@@ -3,18 +3,12 @@
     "description": "Manage redirects in FilamentPHP",
     "type": "library",
     "license": "MIT",
-    "autoload": {
-        "psr-4": {
-            "VanOns\\FilamentRedirects\\": "src/"
-        }
-    },
     "authors": [
         {
-            "name": "Patrick",
-            "email": "patrick@van-ons.nl"
+            "name": "Van Ons",
+            "email": "opensource@van-ons.nl"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
         "php": "^8.2",
         "illuminate/contracts": "^11.0|^12.0|^13.0",
@@ -22,18 +16,39 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.94.2",
-        "phpstan/phpstan": "^2.1.42",
-        "orchestra/testbench": "^11.0|^12.0|^13.0"
+        "orchestra/testbench": "^11.0|^12.0|^13.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
+        "phpstan/phpstan": "^2.1.42"
+    },
+    "autoload": {
+        "psr-4": {
+            "VanOns\\FilamentRedirects\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
     },
     "scripts": {
-        "fix": "vendor/bin/php-cs-fixer fix",
-        "analyse": "vendor/bin/phpstan analyse"
+        "analyse": "vendor/bin/phpstan analyse",
+        "format": "vendor/bin/php-cs-fixer fix",
+        "format:check": "vendor/bin/php-cs-fixer check",
+        "test": "vendor/bin/pest"
     },
     "extra": {
         "laravel": {
             "providers": [
                 "VanOns\\FilamentRedirects\\RedirectsServiceProvider"
             ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
         }
     }
 }

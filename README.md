@@ -1,7 +1,13 @@
+<p align="center"><img src="art/social-card.png" alt="Social card of Filament Redirects"></p>
+
 # Filament Redirects
 
-Filament-Redirects is a package provides your FilamentPHP app with a resource to
-manage your application's redirects in.
+[![Tests](https://github.com/VanOns/filament-redirects/actions/workflows/run-tests.yml/badge.svg)](https://github.com/VanOns/filament-redirects/actions/workflows/run-tests.yml)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/van-ons/filament-redirects.svg)](https://packagist.org/packages/van-ons/filament-redirects)
+[![License](https://img.shields.io/packagist/l/van-ons/filament-redirects.svg)](LICENSE.md)
+
+Filament Redirects is a package that provides your FilamentPHP app with a resource to
+manage URL redirects.
 
 ## Compatibility
 
@@ -19,19 +25,11 @@ Please see the table below to determine which version you need.
 
 ### Add the package
 
-This package is not yet published on packagist,
-therefore you must add it as a repository to your `composer.json` file:
+Install the package via Composer:
 
-```json
-"repositories": [
-    {
-        "type": "vcs",
-        "url": "https://github.com/VanOns/filament-redirects"
-    }
-],
+```bash
+composer require van-ons/filament-redirects
 ```
-
-Now you can install the package: `composer require van-ons/filament-redirects`.
 
 Publish the migrations and apply them.
 ```bash
@@ -62,7 +60,7 @@ class AdminPanelProvider extends PanelProvider
 }
 ```
 
-Now the resource is visibile in your admin panel.
+Now the resource is visible in your admin panel.
 
 ## Configuration
 
@@ -207,4 +205,8 @@ php artisan migrate
 > **Note:** Without the notifications table, completed import notifications will fail and you
 > will not be informed when the import has finished. See the
 > [Filament import documentation](https://filamentphp.com/docs/4.x/actions/import) for more details.
+
+---
+
+<p align="center"><a href="https://van-ons.nl/" target="_blank"><img src="https://opensource.van-ons.nl/files/cow.png" width="50" alt="Logo of Van Ons"></a></p>
 
