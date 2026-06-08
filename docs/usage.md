@@ -1,4 +1,4 @@
-# Basic usage
+# Usage
 
 Redirect rules are evaluated in priority order. The first matching rule wins.
 
