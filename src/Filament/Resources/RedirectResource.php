@@ -6,6 +6,7 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\DateTimePicker;
@@ -26,13 +27,14 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use VanOns\FilamentRedirects\Enums\Type;
-use VanOns\FilamentRedirects\Rules\NoCircularRedirect;
-use VanOns\FilamentRedirects\Rules\NotSelfRedirect;
 use VanOns\FilamentRedirects\Filament\Actions\OpenAction;
+use VanOns\FilamentRedirects\Filament\Exports\RedirectExporter;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\CreateRedirect;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\EditRedirect;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\ListRedirects;
 use VanOns\FilamentRedirects\Models\Redirect;
+use VanOns\FilamentRedirects\Rules\NoCircularRedirect;
+use VanOns\FilamentRedirects\Rules\NotSelfRedirect;
 
 class RedirectResource extends Resource
 {
@@ -168,19 +170,16 @@ class RedirectResource extends Resource
                     ->sortable(),
                 TextColumn::make('status_code')
                     ->label(__('filament-redirects::general.status_code'))
-                    ->sortable()
                     ->numeric()
                     ->badge()
                     ->sortable(),
                 TextColumn::make('hits')
                     ->label(__('filament-redirects::general.hits'))
-                    ->sortable()
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('last_hit')
                     ->label(__('filament-redirects::general.last_hit'))
                     ->placeholder('-')
-                    ->sortable()
                     ->dateTime()
                     ->tooltip(fn (?string $state) => $state)
                     ->since()
@@ -232,6 +231,8 @@ class RedirectResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    ExportBulkAction::make()
+                        ->exporter(RedirectExporter::class),
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
