@@ -26,6 +26,11 @@ return [
     'redirect_details' => 'Redirect details',
     'import_success' => 'Uw redirect import is voltooid en :successful_rows rijen zijn geïmporteerd.',
     'rows_failed' => ' :failed_rows rijen konden niet worden geïmporteerd.',
+    'export_success' => 'Uw redirect export is voltooid en :successful_rows rijen zijn geëxporteerd.',
+    'export_rows_failed' => ' :failed_rows rijen konden niet worden geëxporteerd.',
+    'priority' => 'Prioriteit',
+    'created_at' => 'Aangemaakt op',
+    'updated_at' => 'Bijgewerkt op',
     'from_equals_to' => 'Het "Naar" veld mag niet hetzelfde zijn als het "Van" veld.',
     'circular_redirect' => 'Deze redirect veroorzaakt een circulaire keten.',
 ];
