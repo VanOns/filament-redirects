@@ -2,7 +2,7 @@
 
 namespace VanOns\FilamentRedirects;
 
-use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Support\ServiceProvider;
 use VanOns\FilamentRedirects\Middleware\RedirectMiddleware;
 
