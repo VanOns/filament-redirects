@@ -48,7 +48,7 @@ The export contains the following columns:
 | `updated_at`      | When the redirect was last updated                              |
 
 > **Note:** Only the columns the importer accepts (see [Importing](#importing) above) are read back
-> when an exported file is re-imported. The remaining columns are ignored.
+> when an exported file is reimported. The remaining columns are ignored.
 
 ## Database tables
 
@@ -78,4 +78,3 @@ php artisan migrate
 > **Note:** Without the notifications table, completed notifications will fail silently. See the
 > Filament [import](https://filamentphp.com/docs/actions/import) and
 > [export](https://filamentphp.com/docs/actions/export) documentation for more details.
-</content>
