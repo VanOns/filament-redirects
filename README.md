@@ -1,35 +1,35 @@
+<p align="center"><img src="art/social-card.png" alt="Social card of Filament Redirects"></p>
+
 # Filament Redirects
 
-Filament-Redirects is a package provides your FilamentPHP app with a resource to
-manage your application's redirects in.
+[![Tests](https://github.com/VanOns/filament-redirects/actions/workflows/run-tests.yml/badge.svg?branch=release%2Fv1)](https://github.com/VanOns/filament-redirects/actions/workflows/run-tests.yml)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/van-ons/filament-redirects.svg)](https://packagist.org/packages/van-ons/filament-redirects)
+[![License](https://img.shields.io/packagist/l/van-ons/filament-redirects.svg)](LICENSE.md)
 
-## Installation
+A Filament package to manage redirects in your application.
 
-### Add the package
+> **Note:** This is the v1 branch, compatible with Filament 3. For Filament 4+, see the [main branch](https://github.com/VanOns/filament-redirects).
 
-This package is not yet published on packagist,
-therefore you must add it as a repository to your `composer.json` file:
+## Quick start
 
-```json
-"repositories": [
-    {
-        "type": "vcs",
-        "url": "https://github.com/VanOns/filament-redirects"
-    }
-],
+> For Filament version compatibility, see [Compatibility](docs/compatibility.md).
+
+### Installation
+
+Start by installing the package via Composer:
+
+```bash
+composer require van-ons/filament-redirects:^1.0
 ```
 
-Now you can install the package: `composer require van-ons/filament-redirects`.
+Next, publish and run the migrations:
 
-Publish the migrations with `php artisan vendor:publish --tag=vanons-filament-redirects-migrations`,
-and apply them `php artisan migrate`.
+```sh
+php artisan vendor:publish --tag=vanons-filament-redirects-migrations
+php artisan migrate
+```
 
-Optionally, you can publish this package's configuration file with:
-`php artisan vendor:publish --tag=vanons-filament-redirects-config`.
-
-### Install Filament Plugin
-
-Add the plugin to your app FilamentPHP serviceprovider:
+Finally, add the plugin to your Filament panel provider:
 
 ```php
 use Filament\Panel;
@@ -40,104 +40,47 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel
-            ->plugin(RedirectsPlugin::make());
+        return $panel->plugin(RedirectsPlugin::make());
     }
 }
 ```
 
-Now the resource is visibile in your admin panel.
+## Documentation
 
-## Configuration
+Please see the [documentation](docs) for detailed information about installation and usage.
 
-### Routing
+## Contributing
 
-The `RedirectMiddleware` is automatically registered by the package and runs on every request.
-When a matching redirect rule is found it redirects the visitor, otherwise the request passes
-through unchanged.
+Please see [Contributing](CONTRIBUTING.md) for more information about how you can contribute.
 
-If you would like to disable this, set `add_middleware` to `false` in the config, or add
-`FILAMENT_REDIRECTS_ADD_MIDDLEWARE=false` to your `.env` file.
+## Testing
 
-Alternatively, you can use Laravel's [fallback route](https://laravel.com/docs/12.x/routing#fallback-routes)
-instead of the middleware. However, this is **not recommended** — a fallback route only triggers when
-no other route matches, meaning requests to existing but unresolved routes (e.g. a route that returns a
-404 itself) will never reach the redirect logic. The middleware runs on every request regardless, so it
-catches a much broader set of cases.
-
-To enable the fallback route, set `add_route` to `true` in the config, or add
-`FILAMENT_REDIRECTS_ADD_ROUTE=true` to your `.env` file.
-
-If you want to integrate the redirect logic manually inside a controller or route, you can use
-`VanOns\FilamentRedirects\Actions\RedirectAction` directly:
-
-```php
-use VanOns\FilamentRedirects\Actions\RedirectAction;
-
-$redirect = (new RedirectAction)();
-if ($redirect) {
-    return $redirect;
-}
-
-abort(404);
+```bash
+composer test
 ```
 
-### Navigation
+## Changelog
 
-You can customize the navigation by customizing the translations:
+Please see [Changelog](CHANGELOG.md) for more information about what has changed recently.
 
-To adjust the label overwrite:
-`trans_choice('filament-redirects::models/redirect.label', 2)`.
+## Upgrading
 
-To add a navigation group for the resource, change the config value for
-`filament-redirects.add_nav_group`.
+Please see [Upgrading](UPGRADING.md) for more information about how to upgrade.
 
-To change the name of the group, overwrite
-`trans_choice('filament-redirects::models/redirect.label', 2)`
+## Security
 
-## Usage
+Please see [Security](SECURITY.md) for more information about how we deal with security.
 
-There are three supported redirect types, evaluated in priority order:
+## Credits
 
-### Static
+We would like to thank the following contributors for their contributions to this project:
 
-An exact URL match. The `from` value is compared literally against the current request path.
-If it matches, the visitor is redirected to the `to` value.
+- [All contributors](../../contributors)
 
-| Field  | Value            |
-|--------|------------------|
-| `from` | `old-page`       |
-| `to`   | `new-page`       |
+## License
 
-A request to `/old-page` will redirect to `/new-page`.
+The scripts and documentation in this project are released under the [MIT License](LICENSE.md).
 
 ---
 
-### Match
-
-The `from` value is used as a regular expression (PCRE, without delimiters) and tested against
-the current request path. If it matches, the visitor is redirected to the static `to` value.
-The destination is always a fixed URL — captured groups are not interpolated.
-
-| Field  | Value                  |
-|--------|------------------------|
-| `from` | `blog/[0-9]+/.*`       |
-| `to`   | `blog`                 |
-
-A request to `/blog/123/my-old-post` matches the pattern and redirects to `/blog`.
-
----
-
-### Replace
-
-The `from` value is matched as a literal substring of the request path using `str_contains`.
-If it is found, `str_replace` is used to swap the `from` segment with the `to` segment in the
-current path, and the visitor is redirected to the resulting URL.
-
-| Field  | Value       |
-|--------|-------------|
-| `from` | `en/blog`   |
-| `to`   | `nl/blog`   |
-
-A request to `/en/blog/my-post` will redirect to `/nl/blog/my-post`.
-
+<p align="center"><a href="https://van-ons.nl/" target="_blank"><img src="https://opensource.van-ons.nl/files/cow.png" width="50" alt="Logo of Van Ons"></a></p>

@@ -58,7 +58,7 @@ class RedirectAction
         $route->hit();
 
         return redirect(
-            to: $route->createUrl(),
+            to: $route->createUrl($this->path),
             status: $route->status_code,
             headers: $route->include_headers ? $this->headers : []
         );
@@ -92,8 +92,8 @@ class RedirectAction
         return $this->redirects->first(function (Redirect $redirect) {
             return match ($redirect->type) {
                 Type::Static => $redirect->from === $this->path,
-                Type::Match => preg_match('/' . str_replace('/', '\/', $redirect->from) . '/', $this->path),
-                Type::Replace => str_contains($redirect->from, $this->path),
+                Type::Match => (bool) preg_match('/' . str_replace('/', '\/', $redirect->from) . '/', $this->path),
+                Type::Replace => str_contains($this->path, $redirect->from),
             };
         });
     }
