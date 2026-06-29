@@ -2,9 +2,10 @@
 
 # Filament Redirects
 
-[![Tests](https://github.com/VanOns/filament-redirects/actions/workflows/run-tests.yml/badge.svg)](https://github.com/VanOns/filament-redirects/actions/workflows/run-tests.yml)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/van-ons/filament-redirects.svg)](https://packagist.org/packages/van-ons/filament-redirects)
-[![License](https://img.shields.io/packagist/l/van-ons/filament-redirects.svg)](LICENSE.md)
+[![Latest version on GitHub](https://img.shields.io/github/release/VanOns/filament-redirects.svg?style=flat-square)](https://github.com/VanOns/filament-redirects/releases)
+[![Total downloads](https://img.shields.io/packagist/dt/van-ons/filament-redirects.svg?style=flat-square)](https://packagist.org/packages/van-ons/filament-redirects)
+[![GitHub issues](https://img.shields.io/github/issues/VanOns/filament-redirects?style=flat-square)](https://github.com/VanOns/filament-redirects/issues)
+[![License](https://img.shields.io/github/license/VanOns/filament-redirects?style=flat-square)](https://github.com/VanOns/filament-redirects/blob/main/LICENSE.md)
 
 A Filament package to manage redirects in your application.
 
@@ -82,4 +83,3 @@ The scripts and documentation in this project are released under the [MIT Licens
 ---
 
 <p align="center"><a href="https://van-ons.nl/" target="_blank"><img src="https://opensource.van-ons.nl/files/cow.png" width="50" alt="Logo of Van Ons"></a></p>
-
