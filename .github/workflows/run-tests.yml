@@ -56,6 +56,7 @@ jobs:
         run: |
           composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
           composer require --dev "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer remove --dev larastan/larastan phpstan/phpstan friendsofphp/php-cs-fixer --no-interaction --no-update
           composer update --${{ matrix.stability }} -W --prefer-dist --no-progress --no-ansi --no-interaction
 
       - name: 🧪 Run Pest tests
