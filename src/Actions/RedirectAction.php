@@ -5,7 +5,6 @@ namespace VanOns\FilamentRedirects\Actions;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -40,7 +39,7 @@ class RedirectAction
      * @throws NotFoundHttpException
      * @throws HttpResponseException
      */
-    public function __invoke(): null|RedirectResponse|Redirector
+    public function __invoke(): null|RedirectResponse
     {
         $this->redirects = $this->getRedirects();
 
@@ -53,7 +52,7 @@ class RedirectAction
         return null;
     }
 
-    private function redirectTo(Redirect $route): RedirectResponse|Redirector
+    private function redirectTo(Redirect $route): RedirectResponse
     {
         $route->hit();
 
