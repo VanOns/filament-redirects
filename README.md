@@ -2,13 +2,12 @@
 
 # Filament Redirects
 
-[![Tests](https://github.com/VanOns/filament-redirects/actions/workflows/run-tests.yml/badge.svg?branch=release%2Fv1)](https://github.com/VanOns/filament-redirects/actions/workflows/run-tests.yml)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/van-ons/filament-redirects.svg)](https://packagist.org/packages/van-ons/filament-redirects)
-[![License](https://img.shields.io/packagist/l/van-ons/filament-redirects.svg)](LICENSE.md)
+[![Latest version on GitHub](https://img.shields.io/github/release/VanOns/filament-redirects.svg?style=flat-square)](https://github.com/VanOns/filament-redirects/releases)
+[![Total downloads](https://img.shields.io/packagist/dt/van-ons/filament-redirects.svg?style=flat-square)](https://packagist.org/packages/van-ons/filament-redirects)
+[![GitHub issues](https://img.shields.io/github/issues/VanOns/filament-redirects?style=flat-square)](https://github.com/VanOns/filament-redirects/issues)
+[![License](https://img.shields.io/github/license/VanOns/filament-redirects?style=flat-square)](https://github.com/VanOns/filament-redirects/blob/release/v1 /LICENSE.md)
 
 A Filament package to manage redirects in your application.
-
-> **Note:** This is the v1 branch, compatible with Filament 3. For Filament 4+, see the [main branch](https://github.com/VanOns/filament-redirects).
 
 ## Quick start
 
