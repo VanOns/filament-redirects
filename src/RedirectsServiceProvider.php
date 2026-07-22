@@ -21,6 +21,7 @@ class RedirectsServiceProvider extends ServiceProvider
         }
 
         if ($this->app->runningInConsole()) {
+            // @phpstan-ignore function.alreadyNarrowedType
             if (method_exists($this, 'publishesMigrations')) {
                 $this->publishesMigrations(
                     paths: [

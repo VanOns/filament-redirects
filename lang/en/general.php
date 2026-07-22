@@ -22,4 +22,9 @@ return [
     'type' => 'Type',
     'open' => 'Open',
     'redirect_details' => 'Redirect details',
+    'priority' => 'Priority',
+    'created_at' => 'Created at',
+    'updated_at' => 'Updated at',
+    'from_equals_to' => 'The "To" field cannot be the same as the "From" field.',
+    'circular_redirect' => 'This redirect creates a circular chain.',
 ];

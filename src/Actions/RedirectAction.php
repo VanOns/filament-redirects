@@ -5,7 +5,6 @@ namespace VanOns\FilamentRedirects\Actions;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -40,7 +39,7 @@ class RedirectAction
      * @throws NotFoundHttpException
      * @throws HttpResponseException
      */
-    public function __invoke(): null|RedirectResponse|Redirector
+    public function __invoke(): null|RedirectResponse
     {
         $this->redirects = $this->getRedirects();
 
@@ -53,12 +52,12 @@ class RedirectAction
         return null;
     }
 
-    private function redirectTo(Redirect $route): RedirectResponse|Redirector
+    private function redirectTo(Redirect $route): RedirectResponse
     {
         $route->hit();
 
         return redirect(
-            to: $route->createUrl(),
+            to: $route->createUrl($this->path),
             status: $route->status_code,
             headers: $route->include_headers ? $this->headers : []
         );
@@ -92,8 +91,8 @@ class RedirectAction
         return $this->redirects->first(function (Redirect $redirect) {
             return match ($redirect->type) {
                 Type::Static => $redirect->from === $this->path,
-                Type::Match => preg_match('/' . str_replace('/', '\/', $redirect->from) . '/', $this->path),
-                Type::Replace => str_contains($redirect->from, $this->path),
+                Type::Match => (bool) preg_match('/' . str_replace('/', '\/', $redirect->from) . '/', $this->path),
+                Type::Replace => str_contains($this->path, $redirect->from),
             };
         });
     }

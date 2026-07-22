@@ -2,6 +2,7 @@
 
 namespace VanOns\FilamentRedirects\Models;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -14,14 +15,14 @@ use VanOns\FilamentRedirects\Enums\Type;
 /**
  * @property int $id
  * @property string $from
- * @property string $to
+ * @property string|null $to
  * @property int $status_code
  * @property bool $include_headers
  * @property bool $include_query
  * @property int $hits
- * @property \Carbon\Carbon $last_hit
+ * @property Carbon|null $last_hit
  * @property bool $active
- * @property int $priority
+ * @property int|null $priority
  * @property Type $type
  */
 class Redirect extends Model
@@ -63,28 +64,26 @@ class Redirect extends Model
     /**
      * @throws BindingResolutionException
      */
-    public function createUrl(): string
+    public function createUrl(?string $path = null): string
     {
-        $url = $this->handleRedirectType();
+        $url = $this->handleRedirectType($path ?? request()->path());
 
         if ($this->include_query) {
             $query = request()->getQueryString();
 
-            if (strlen($query) > 0) {
+            if (!empty($query)) {
                 $url .= '?'.$query;
             }
         }
 
-        return $url;
+        return $url ?? url('/');
     }
 
-    private function handleRedirectType()
+    private function handleRedirectType(string $path): ?string
     {
         return match ($this->type) {
-            Type::Static => $this->to,
-            Type::Match => $this->to,
-            Type::Replace => str_replace($this->from, $this->to, request()->path()),
-            default => config('app.url'),
+            Type::Static, Type::Match => $this->to,
+            Type::Replace => str_replace($this->from, $this->to ?? '', $path),
         };
     }
 

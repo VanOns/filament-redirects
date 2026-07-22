@@ -22,4 +22,9 @@ return [
     'type' => 'Type',
     'open' => 'Open',
     'redirect_details' => 'Redirect details',
+    'priority' => 'Prioriteit',
+    'created_at' => 'Aangemaakt op',
+    'updated_at' => 'Bijgewerkt op',
+    'from_equals_to' => 'Het "Naar" veld mag niet hetzelfde zijn als het "Van" veld.',
+    'circular_redirect' => 'Deze redirect veroorzaakt een circulaire keten.',
 ];
