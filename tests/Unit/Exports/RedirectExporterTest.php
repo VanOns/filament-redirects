@@ -50,6 +50,21 @@ it('leaves an ordinary negative number unescaped', function () {
     expect($row['title'])->toBe('-5');
 });
 
+it('escapes formula-triggering characters directly', function () {
+    expect(RedirectExporter::sanitizeFormulaState('=1+1'))->toBe("'=1+1")
+        ->and(RedirectExporter::sanitizeFormulaState('+HYPERLINK(1)'))->toBe("'+HYPERLINK(1)")
+        ->and(RedirectExporter::sanitizeFormulaState('@SUM(1)'))->toBe("'@SUM(1)")
+        ->and(RedirectExporter::sanitizeFormulaState("\ttab"))->toBe("'\ttab");
+});
+
+it('leaves non-string and ordinary values unchanged when sanitizing', function () {
+    expect(RedirectExporter::sanitizeFormulaState('-5'))->toBe('-5')
+        ->and(RedirectExporter::sanitizeFormulaState('blog'))->toBe('blog')
+        ->and(RedirectExporter::sanitizeFormulaState(''))->toBe('')
+        ->and(RedirectExporter::sanitizeFormulaState(null))->toBeNull()
+        ->and(RedirectExporter::sanitizeFormulaState(Type::Static))->toBe(Type::Static);
+});
+
 it('leaves ordinary values unescaped', function () {
     $redirect = Redirect::create([
         'from' => 'old-page',
