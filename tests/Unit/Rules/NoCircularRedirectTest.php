@@ -27,6 +27,28 @@ it('fails on an indirect circular redirect chain', function () {
     expect($failed)->toBeTrue();
 });
 
+it('fails on a circular chain through a match redirect', function () {
+    Redirect::create(['from' => '^b$', 'to' => 'a', 'type' => Type::Match, 'status_code' => 301, 'active' => true]);
+
+    $rule = new NoCircularRedirect('a');
+    $failed = false;
+    $rule->validate('to', 'b', function () use (&$failed) {
+        $failed = true;
+    });
+    expect($failed)->toBeTrue();
+});
+
+it('fails on a circular chain through a replace redirect', function () {
+    Redirect::create(['from' => 'b', 'to' => 'a', 'type' => Type::Replace, 'status_code' => 301, 'active' => true]);
+
+    $rule = new NoCircularRedirect('a');
+    $failed = false;
+    $rule->validate('to', 'b', function () use (&$failed) {
+        $failed = true;
+    });
+    expect($failed)->toBeTrue();
+});
+
 it('passes when no circular chain exists', function () {
     Redirect::create(['from' => 'b', 'to' => 'c', 'type' => Type::Static, 'status_code' => 301, 'active' => true]);
 

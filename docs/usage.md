@@ -29,6 +29,12 @@ Captured groups are not interpolated — the destination is always a fixed URL.
 
 A request to `/blog/123/my-old-post` matches the pattern and redirects to `/blog`.
 
+> **Note:** the pattern is unanchored, so it matches anywhere in the path. A `from` of `admin`
+> also matches `/public/administrator/login`. Regex metacharacters are interpreted rather than
+> taken literally. Anchor the pattern with `^` and `$` when you mean an exact path, for example
+> `^blog/[0-9]+/.*$`. Patterns that do not compile are rejected when saving or importing, and an
+> existing pattern that does not compile is skipped.
+
 ## Replace
 
 The `from` value is matched as a literal substring of the request path. If found,

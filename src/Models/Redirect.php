@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use VanOns\FilamentRedirects\Enums\Keys;
 use VanOns\FilamentRedirects\Enums\Type;
@@ -67,11 +68,46 @@ class Redirect extends Model
     }
 
     /**
+     * Build the PCRE pattern for a `match` redirect. Only the delimiter is escaped, the rest of
+     * the stored value stays the regex the admin wrote.
+     */
+    public static function pattern(string $from): string
+    {
+        return '#'.str_replace('#', '\#', $from).'#';
+    }
+
+    public function matches(string $path): bool
+    {
+        return match ($this->type) {
+            Type::Static => $this->from === $path,
+            Type::Match => $this->matchesPattern($path),
+            Type::Replace => str_contains($path, $this->from),
+        };
+    }
+
+    private function matchesPattern(string $path): bool
+    {
+        $result = @preg_match(self::pattern($this->from), $path);
+
+        // a pattern that does not compile is skipped, the other redirects still get evaluated
+        if ($result === false) {
+            Log::warning('Redirect has an invalid regular expression.', [
+                'redirect' => $this->id,
+                'error' => preg_last_error_msg(),
+            ]);
+
+            return false;
+        }
+
+        return $result === 1;
+    }
+
+    /**
      * @throws BindingResolutionException
      */
     public function createUrl(?string $path = null): ?string
     {
-        $url = $this->handleRedirectType($path ?? request()->path());
+        $url = $this->destinationFor($path ?? request()->path());
 
         if ($this->include_query) {
             $query = request()->getQueryString();
@@ -84,7 +120,7 @@ class Redirect extends Model
         return $url ?? url('/');
     }
 
-    private function handleRedirectType(string $path)
+    public function destinationFor(string $path): ?string
     {
         return match ($this->type) {
             Type::Static, Type::Match => $this->to,
@@ -104,7 +140,12 @@ class Redirect extends Model
             Cache::forget(Keys::Cache->value);
         });
 
-        static::updated(function () {
+        static::updated(function (Redirect $redirect) {
+            $changed = array_diff(array_keys($redirect->getChanges()), ['hits', 'last_hit', 'updated_at']);
+            if (empty($changed)) {
+                return;
+            }
+
             Cache::forget(Keys::Cache->value);
         });
 

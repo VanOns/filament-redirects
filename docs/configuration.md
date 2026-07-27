@@ -45,6 +45,20 @@ if ($redirect) {
 abort(404);
 ```
 
+## Forwarded headers
+
+Each redirect has an "include headers" toggle. When it is enabled, headers from the incoming
+request can be copied onto the redirect response, but only the ones you explicitly allow:
+
+```php
+'forwarded_headers' => ['X-Request-Id'],
+```
+
+The list is empty by default, so no request headers are forwarded unless you name them. Keep it
+that way unless a specific header is genuinely needed downstream: redirect responses are
+cacheable, and forwarded values belong to a single visitor's request. When at least one header is
+forwarded, the response is sent with `Cache-Control: no-store` so it stays out of shared caches.
+
 ## Navigation
 
 ### Label

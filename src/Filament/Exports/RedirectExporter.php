@@ -16,11 +16,14 @@ class RedirectExporter extends Exporter
     {
         return [
             ExportColumn::make('from')
-                ->label(__('filament-redirects::general.from')),
+                ->label(__('filament-redirects::general.from'))
+                ->preventFormulaInjection(),
             ExportColumn::make('to')
-                ->label(__('filament-redirects::general.to')),
+                ->label(__('filament-redirects::general.to'))
+                ->preventFormulaInjection(),
             ExportColumn::make('type')
-                ->label(__('filament-redirects::general.type')),
+                ->label(__('filament-redirects::general.type'))
+                ->preventFormulaInjection(),
             ExportColumn::make('status_code')
                 ->label(__('filament-redirects::general.status_code')),
             ExportColumn::make('include_headers')
@@ -28,9 +31,11 @@ class RedirectExporter extends Exporter
             ExportColumn::make('include_query')
                 ->label(__('filament-redirects::general.include_query')),
             ExportColumn::make('category')
-                ->label(__('filament-redirects::general.category')),
+                ->label(__('filament-redirects::general.category'))
+                ->preventFormulaInjection(),
             ExportColumn::make('title')
-                ->label(__('filament-redirects::general.title')),
+                ->label(__('filament-redirects::general.title'))
+                ->preventFormulaInjection(),
             ExportColumn::make('active')
                 ->label(__('filament-redirects::general.active')),
             ExportColumn::make('hits')

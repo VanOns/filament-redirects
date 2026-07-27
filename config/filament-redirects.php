@@ -18,6 +18,11 @@ return [
      * The default status code inside the Filament Form. To change the database default, update the migration file or create a new migration.
      */
     'default_status_code' => 301,
+    /**
+     * Request headers that may be copied onto the redirect response when a redirect has
+     * "include headers" enabled. Anything not listed here is left off the response.
+     */
+    'forwarded_headers' => [],
     'cache' => [
         'enabled' => false,
         'ttl' => 60,

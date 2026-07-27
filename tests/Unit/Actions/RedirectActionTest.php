@@ -79,6 +79,50 @@ it('increments hit count on a successful redirect', function () {
     expect($redirect->fresh()->hits)->toBe(1);
 });
 
+it('does not forward request headers when none are configured', function () {
+    Redirect::create(['from' => 'old-page', 'to' => 'new-page', 'type' => Type::Static, 'status_code' => 301, 'active' => true, 'include_headers' => true, 'include_query' => false]);
+
+    $result = (new RedirectAction('old-page', ['x-custom' => ['value'], 'cookie' => ['session=abc']]))();
+
+    expect($result->headers->has('x-custom'))->toBeFalse()
+        ->and($result->headers->has('cookie'))->toBeFalse();
+});
+
+it('forwards only the configured request headers', function () {
+    config()->set('filament-redirects.forwarded_headers', ['X-Custom']);
+    Redirect::create(['from' => 'old-page', 'to' => 'new-page', 'type' => Type::Static, 'status_code' => 301, 'active' => true, 'include_headers' => true, 'include_query' => false]);
+
+    $result = (new RedirectAction('old-page', ['x-custom' => ['value'], 'cookie' => ['session=abc']]))();
+
+    expect($result->headers->get('x-custom'))->toBe('value')
+        ->and($result->headers->has('cookie'))->toBeFalse()
+        ->and($result->headers->get('cache-control'))->toContain('no-store');
+});
+
+it('does not forward configured headers when include_headers is disabled', function () {
+    config()->set('filament-redirects.forwarded_headers', ['X-Custom']);
+    Redirect::create(['from' => 'old-page', 'to' => 'new-page', 'type' => Type::Static, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
+
+    $result = (new RedirectAction('old-page', ['x-custom' => ['value']]))();
+
+    expect($result->headers->has('x-custom'))->toBeFalse();
+});
+
+it('skips a match redirect whose pattern does not compile', function () {
+    Redirect::create(['from' => '(unclosed', 'to' => 'blocked', 'type' => Type::Match, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
+    Redirect::create(['from' => 'old-page', 'to' => 'new-page', 'type' => Type::Static, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
+
+    expect((new RedirectAction('unrelated-page'))())->toBeNull()
+        ->and((new RedirectAction('old-page'))()->getTargetUrl())->toContain('new-page');
+});
+
+it('matches a pattern containing slashes without extra escaping', function () {
+    Redirect::create(['from' => '^en/blog/[0-9]+$', 'to' => 'blog', 'type' => Type::Match, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
+
+    expect((new RedirectAction('en/blog/12'))())->not->toBeNull()
+        ->and((new RedirectAction('nl/en/blog/12'))())->toBeNull();
+});
+
 it('evaluates redirects in priority order', function () {
     Redirect::create(['from' => 'page', 'to' => 'first', 'type' => Type::Static, 'status_code' => 301, 'active' => true, 'priority' => 1, 'include_headers' => false, 'include_query' => false]);
     Redirect::create(['from' => 'page', 'to' => 'second', 'type' => Type::Static, 'status_code' => 301, 'active' => true, 'priority' => 2, 'include_headers' => false, 'include_query' => false]);
