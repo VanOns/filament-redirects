@@ -33,4 +33,5 @@ return [
     'updated_at' => 'Updated at',
     'from_equals_to' => 'The "To" field cannot be the same as the "From" field.',
     'circular_redirect' => 'This redirect creates a circular chain.',
+    'invalid_regex' => 'The "From" field is not a valid regular expression.',
 ];

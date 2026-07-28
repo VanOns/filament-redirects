@@ -6,12 +6,12 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use VanOns\FilamentRedirects\Enums\Keys;
-use VanOns\FilamentRedirects\Enums\Type;
 use VanOns\FilamentRedirects\Models\Redirect;
 
 class RedirectAction
@@ -60,8 +60,33 @@ class RedirectAction
         return redirect(
             to: $route->createUrl($this->path),
             status: $route->status_code,
-            headers: $route->include_headers ? $this->headers : []
+            headers: $this->forwardedHeaders($route)
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function forwardedHeaders(Redirect $route): array
+    {
+        if (!$route->include_headers) {
+            return [];
+        }
+
+        /** @var array<int, string> $allowed */
+        $allowed = config('filament-redirects.forwarded_headers', []);
+
+        $headers = Arr::only(
+            array_change_key_case($this->headers),
+            array_map(strtolower(...), $allowed)
+        );
+
+        if (empty($headers)) {
+            return [];
+        }
+
+        // forwarded values belong to one visitor's request, so keep the response out of caches
+        return $headers + ['Cache-Control' => 'no-store'];
     }
 
     /**
@@ -89,12 +114,6 @@ class RedirectAction
 
     private function findRedirect(): ?Redirect
     {
-        return $this->redirects->first(function (Redirect $redirect) {
-            return match ($redirect->type) {
-                Type::Static => $redirect->from === $this->path,
-                Type::Match => preg_match('/' . str_replace('/', '\/', $redirect->from) . '/', $this->path),
-                Type::Replace => str_contains($this->path, $redirect->from),
-            };
-        });
+        return $this->redirects->first(fn (Redirect $redirect) => $redirect->matches($this->path));
     }
 }

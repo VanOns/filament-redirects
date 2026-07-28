@@ -33,6 +33,15 @@ it('clears cache when redirect is updated', function () {
     expect(Cache::has(Keys::Cache->value))->toBeFalse();
 });
 
+it('keeps cache when only the hit counter changes', function () {
+    $redirect = Redirect::create(['from' => 'old', 'to' => 'new', 'type' => Type::Static, 'status_code' => 301, 'active' => true]);
+
+    Cache::put(Keys::Cache->value, 'test-value');
+    $redirect->hit();
+
+    expect(Cache::has(Keys::Cache->value))->toBeTrue();
+});
+
 it('clears cache when redirect is soft deleted', function () {
     $redirect = Redirect::create(['from' => 'old', 'to' => 'new', 'type' => Type::Static, 'status_code' => 301, 'active' => true]);
 

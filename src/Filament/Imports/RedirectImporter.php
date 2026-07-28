@@ -7,9 +7,11 @@ use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
 use Illuminate\Support\Number;
 use Illuminate\Validation\ValidationException;
+use VanOns\FilamentRedirects\Enums\Type;
 use VanOns\FilamentRedirects\Models\Redirect;
 use VanOns\FilamentRedirects\Rules\NoCircularRedirect;
 use VanOns\FilamentRedirects\Rules\NotSelfRedirect;
+use VanOns\FilamentRedirects\Rules\ValidRegex;
 
 class RedirectImporter extends Importer
 {
@@ -52,10 +54,15 @@ class RedirectImporter extends Importer
     public function beforeSave(): void
     {
         $from = $this->data['from'] ?? null;
+        $rules = ['to' => [new NotSelfRedirect($from), new NoCircularRedirect($from)]];
+
+        if (($this->data['type'] ?? null) === Type::Match->value) {
+            $rules['from'] = [new ValidRegex()];
+        }
 
         $validator = validator(
-            ['to' => $this->data['to'] ?? null],
-            ['to' => [new NotSelfRedirect($from), new NoCircularRedirect($from)]],
+            ['from' => $from, 'to' => $this->data['to'] ?? null],
+            $rules,
         );
 
         if ($validator->fails()) {
