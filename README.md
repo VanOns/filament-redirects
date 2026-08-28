@@ -7,7 +7,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/VanOns/filament-redirects?style=flat-square)](https://github.com/VanOns/filament-redirects/issues)
 [![License](https://img.shields.io/github/license/VanOns/filament-redirects?style=flat-square)](https://github.com/VanOns/filament-redirects/blob/release/v1/LICENSE.md)
 
-A Filament package to manage redirects in your application.
+Manage redirects in your Filament admin panel.
 
 ## Quick start
 
