@@ -1,6 +1,6 @@
 {
     "name": "van-ons/filament-redirects",
-    "description": "A Filament package to manage redirects in your application.",
+    "description": "Manage redirects in your Filament admin panel.",
     "keywords": [
         "laravel",
         "filament",

@@ -1,6 +1,6 @@
 # Introduction
 
-A Filament package to manage redirects in your application.
+Manage redirects in your Filament admin panel.
 
 ## Features
 
