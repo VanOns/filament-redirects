@@ -4,7 +4,10 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - 'release/v1'
+      - main
+      - 'release/*'
+    paths:
+      - '**/*.php'
   pull_request:
     types: [ opened, synchronize, reopened ]
     branches-ignore:
