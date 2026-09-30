@@ -16,7 +16,8 @@ class ListRedirects extends ListRecords
     {
         return [
             ImportAction::make()
-                ->importer(RedirectImporter::class),
+                ->importer(RedirectImporter::class)
+                ->authorize(fn (): bool => RedirectResource::canCreate()),
             CreateAction::make(),
         ];
     }
