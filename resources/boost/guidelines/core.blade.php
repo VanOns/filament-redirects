@@ -44,7 +44,7 @@ class AdminPanelProvider extends PanelProvider
 | `VanOns\FilamentRedirects\Rules\NoCircularRedirect` | Validation rule. Walks active `static` redirects to detect cycles. Apply to `to`. |
 | `VanOns\FilamentRedirects\Filament\Imports\RedirectImporter` | Filament Importer used by the resource's `ImportAction`. |
 | `VanOns\FilamentRedirects\Filament\Actions\OpenAction` | Filament action that opens a path in a new tab; reads the field's state for the URL. |
-| `VanOns\FilamentRedirects\Enums\Keys` | `Keys::Cache` → `redirector-models` (cache key for the redirect collection). |
+| `VanOns\FilamentRedirects\Enums\Keys` | `Keys::Cache` → `redirector-models` (cache key for the match and replace redirects). |
 
 ### Config (`config/filament-redirects.php`)
 
@@ -54,7 +54,7 @@ class AdminPanelProvider extends PanelProvider
 | `add_route` | `false` | Registers a `Route::fallback(RedirectAction::class)`. Env: `FILAMENT_REDIRECTS_ADD_ROUTE`. |
 | `status_codes` | `[301, 302, 303, 307, 308]` | Allowed values in the form select + importer. |
 | `default_status_code` | `301` | Default selected in the form (DB default is set in the migration). |
-| `cache.enabled` | `false` | Caches the active-redirects collection. |
+| `cache.enabled` | `false` | Caches the active match and replace redirects; static redirects are looked up by path. |
 | `cache.ttl` | `60` | Seconds. Auto-invalidated on model `created/updated/deleted/restored`. |
 
 Publish tags: `vanons-filament-redirects-migrations`, `vanons-filament-redirects-config`, `vanons-filament-redirects-translations`.

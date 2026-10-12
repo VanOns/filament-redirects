@@ -1,6 +1,9 @@
 <?php
 
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use VanOns\FilamentRedirects\Actions\RedirectAction;
+use VanOns\FilamentRedirects\Enums\Keys;
 use VanOns\FilamentRedirects\Enums\Type;
 use VanOns\FilamentRedirects\Models\Redirect;
 
@@ -129,4 +132,43 @@ it('evaluates redirects in priority order', function () {
 
     $result = (new RedirectAction('page'))();
     expect($result->getTargetUrl())->toContain('first');
+});
+
+it('lets priority decide between a static redirect and a pattern', function () {
+    Redirect::create(['from' => '^blog/.*', 'to' => 'pattern', 'type' => Type::Match, 'status_code' => 301, 'active' => true, 'priority' => 1, 'include_headers' => false, 'include_query' => false]);
+    $static = Redirect::create(['from' => 'blog/post', 'to' => 'static', 'type' => Type::Static, 'status_code' => 301, 'active' => true, 'priority' => 2, 'include_headers' => false, 'include_query' => false]);
+
+    expect((new RedirectAction('blog/post'))()->getTargetUrl())->toContain('pattern');
+
+    $static->update(['priority' => 0]);
+
+    expect((new RedirectAction('blog/post'))()->getTargetUrl())->toContain('static');
+});
+
+it('only loads the static redirects of the requested path', function () {
+    foreach (range(1, 20) as $i) {
+        Redirect::create(['from' => "page-{$i}", 'to' => "new-{$i}", 'type' => Type::Static, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
+    }
+    Redirect::create(['from' => '^blog/.*', 'to' => 'blog', 'type' => Type::Match, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
+
+    $loaded = 0;
+    Event::listen('eloquent.retrieved: ' . Redirect::class, function () use (&$loaded) {
+        $loaded++;
+    });
+
+    expect((new RedirectAction('page-7'))()->getTargetUrl())->toContain('new-7')
+        ->and($loaded)->toBe(2);
+});
+
+it('caches only the pattern redirects', function () {
+    config()->set('filament-redirects.cache.enabled', true);
+    Redirect::create(['from' => '^blog/.*', 'to' => 'blog', 'type' => Type::Match, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
+
+    (new RedirectAction('anything'))();
+
+    // Written without model events, so the cache is not cleared: the static lookup does not need it.
+    Redirect::query()->insert(['from' => 'old-page', 'to' => 'new-page', 'type' => Type::Static->value, 'status_code' => 301, 'active' => true, 'priority' => 2, 'include_headers' => false, 'include_query' => false]);
+
+    expect(Cache::get(Keys::Cache->value))->toHaveCount(1)
+        ->and((new RedirectAction('old-page'))()->getTargetUrl())->toContain('new-page');
 });

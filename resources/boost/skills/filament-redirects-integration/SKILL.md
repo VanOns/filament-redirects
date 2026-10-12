@@ -175,7 +175,7 @@ Disabled by default. Enable in `config/filament-redirects.php`:
 ],
 ```
 
-When enabled, `RedirectAction` reads through `Cache::remember(Keys::Cache->value, ttl, ...)`. The `Redirect` model auto-invalidates on `created/updated/deleted/restored`. Manual invalidation:
+`RedirectAction` looks a static redirect up by its path (indexed on `type, from`), so only the `match` and `replace` redirects are loaded per request. When enabled, those are read through `Cache::remember(Keys::Cache->value, ttl, ...)`; static redirects always come from the database. The `Redirect` model auto-invalidates on `created/updated/deleted/restored`. Manual invalidation:
 
 ```php
 use Illuminate\Support\Facades\Cache;
@@ -184,7 +184,7 @@ use VanOns\FilamentRedirects\Enums\Keys;
 Cache::forget(Keys::Cache->value); // 'redirector-models'
 ```
 
-You **must** invalidate manually after `DB::table('redirects')->...` or `Redirect::insert(...)` — those bypass model events.
+You **must** invalidate manually after writing `match` or `replace` redirects through `DB::table('redirects')->...` or `Redirect::insert(...)` — those bypass model events.
 
 ## Anti-patterns
 

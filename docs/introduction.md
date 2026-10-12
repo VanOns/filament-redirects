@@ -12,4 +12,4 @@ Manage redirects in your Filament admin panel.
 - **CSV import** — bulk-import redirects via Filament's built-in import action
 - **Category and title** — optional fields for organizing and labeling redirects
 - **Circular redirect detection** — prevents saving a redirect that would cause an infinite loop
-- **Configurable caching** — optionally cache the active redirect list to reduce database queries
+- **Fast lookups** — a static redirect is found by its path, so only the match and replace redirects are loaded per request; those can optionally be cached

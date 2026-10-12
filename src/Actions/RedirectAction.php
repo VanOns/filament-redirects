@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use VanOns\FilamentRedirects\Enums\Keys;
+use VanOns\FilamentRedirects\Enums\Type;
 use VanOns\FilamentRedirects\Models\Redirect;
 
 class RedirectAction
@@ -31,19 +32,12 @@ class RedirectAction
     }
 
     /**
-     * @var Collection<int,Redirect>
-     */
-    private Collection $redirects;
-
-    /**
      * @throws HttpException
      * @throws NotFoundHttpException
      * @throws HttpResponseException
      */
     public function __invoke(): null|RedirectResponse|Redirector
     {
-        $this->redirects = $this->getRedirects();
-
         $redirect = $this->findRedirect();
 
         if ($redirect) {
@@ -89,14 +83,40 @@ class RedirectAction
         return $headers + ['Cache-Control' => 'no-store'];
     }
 
+    private function findRedirect(): ?Redirect
+    {
+        return $this->staticRedirects()
+            ->concat($this->patternRedirects())
+            ->sortBy('priority')
+            ->first(fn (Redirect $redirect) => $redirect->matches($this->path));
+    }
+
     /**
+     * A static redirect only matches its own path, so it is looked up by that path instead of
+     * loading every redirect on every request.
+     *
      * @return Collection<int,Redirect>
      */
-    private function getRedirects(): Collection
+    private function staticRedirects(): Collection
+    {
+        return Redirect::query()
+            ->active()
+            ->where('type', Type::Static)
+            ->where('from', $this->path)
+            ->get();
+    }
+
+    /**
+     * Match and replace redirects have to be tried one by one; these are the ones the cache holds.
+     *
+     * @return Collection<int,Redirect>
+     */
+    private function patternRedirects(): Collection
     {
         $query = function () {
             return Redirect::query()
                 ->active()
+                ->where('type', '!=', Type::Static)
                 ->orderBy('priority')
                 ->get();
         };
@@ -110,10 +130,5 @@ class RedirectAction
         }
 
         return $query();
-    }
-
-    private function findRedirect(): ?Redirect
-    {
-        return $this->redirects->first(fn (Redirect $redirect) => $redirect->matches($this->path));
     }
 }
