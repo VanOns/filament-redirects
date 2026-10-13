@@ -7,4 +7,9 @@ return [
         'match' => 'Match (reguliere expressie)',
         'replace' => 'Vervangen',
     ],
+    'short_types' => [
+        'static' => 'Statisch',
+        'match' => 'Match',
+        'replace' => 'Vervangen',
+    ],
 ];
