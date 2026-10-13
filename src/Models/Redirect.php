@@ -7,6 +7,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -86,9 +87,35 @@ class Redirect extends Model
     {
         return match ($this->type) {
             Type::Static => $this->from === $path,
-            Type::Match => $this->matchesPattern($path),
-            Type::Replace => str_contains($path, $this->from),
+            Type::Match => $this->matchesPattern($path) && $this->staysWithinItsDestination($path),
+            Type::Replace => str_contains($path, $this->from) && $this->staysWithinItsDestination($path),
         };
+    }
+
+    /**
+     * Whether the destination for the path leaves this site only for the host its `to` names. Part of a match or
+     * replace destination comes from the request, so `^nl/(.*)$` to `$1` must not send `/nl/https://evil.test` off-site.
+     */
+    private function staysWithinItsDestination(string $path): bool
+    {
+        $origin = self::origin((string) $this->destinationFor($path));
+
+        return $origin === null || $origin === self::origin((string) preg_replace(self::GROUP_REFERENCE, '', (string) $this->to));
+    }
+
+    /**
+     * The scheme and host a destination leaves this site for, or null for a path on this site, read the way the
+     * redirector reads it.
+     */
+    private static function origin(string $url): ?string
+    {
+        if (!app(UrlGenerator::class)->isValidUrl($url)) {
+            return null;
+        }
+
+        $parts = parse_url($url) ?: [];
+
+        return strtolower(($parts['scheme'] ?? '').'://'.($parts['host'] ?? '').(isset($parts['port']) ? ':'.$parts['port'] : ''));
     }
 
     private function matchesPattern(string $path): bool

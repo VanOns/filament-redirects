@@ -59,3 +59,10 @@ the `from` segment is replaced with the `to` segment in the current path.
 | `to`   | `nl/blog` |
 
 A request to `/en/blog/my-post` redirects to `/nl/blog/my-post`.
+
+## Staying on the destination's host
+
+Part of a match or replace destination comes from the request: a captured group, or the rest of the path.
+A redirect therefore only sends a visitor to another domain when its `to` names that domain. With `^nl/(.*)$`
+to `$1`, a request to `/nl/https://evil.test` would otherwise redirect to `https://evil.test`; such a request
+does not match the redirect at all. A `to` of `https://example.com/$1` still redirects to `example.com`.
