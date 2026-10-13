@@ -154,7 +154,7 @@ class Redirect extends Model
         return match ($this->type) {
             Type::Static => $this->to,
             Type::Match => $this->fillCapturedGroups($path),
-            Type::Replace => str_replace($this->from, $this->to, $path),
+            Type::Replace => str_replace($this->from, (string) $this->to, $path),
         };
     }
 
