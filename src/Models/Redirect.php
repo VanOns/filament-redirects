@@ -150,7 +150,9 @@ class Redirect extends Model
      */
     public function resolve(string $url): ?string
     {
+        // the same path a request gets: `/` for the home page, without slashes around anything else
         $path = trim((string) parse_url($url, PHP_URL_PATH), '/');
+        $path = $path === '' ? '/' : $path;
 
         if (!$this->matches($path)) {
             return null;

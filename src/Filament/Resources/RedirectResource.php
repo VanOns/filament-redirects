@@ -30,6 +30,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use VanOns\FilamentRedirects\Enums\Type;
@@ -231,8 +232,8 @@ class RedirectResource extends Resource
             $url = Str::after($url, $appUrl);
         }
 
-        if (Str::contains($url, '://')) {
-            return '↗ '.Str::after($url, '://');
+        if (self::isUrl($url)) {
+            return '↗ '.Str::after($url, '//');
         }
 
         return '/'.ltrim($url, '/');
@@ -240,9 +241,10 @@ class RedirectResource extends Resource
 
     private static function redirectSection(): Section
     {
-        // The prefix of the field already shows the leading slash, so a path is shown and stored without one.
-        $fromPath = fn (?string $state, Get $get): ?string => self::typeOf($get) === Type::Static ? self::withoutLeadingSlash($state) : $state;
-        $toPath = fn (?string $state, Get $get): ?string => self::typeOf($get) !== Type::Replace ? self::withoutLeadingSlash($state) : $state;
+        // The prefix of the field already shows the leading slash, so a path is shown and stored without one. A static
+        // From loses its trailing slash as well, as a request path has none; in To it is part of where the visitor goes.
+        $fromPath = fn (?string $state, Get $get): ?string => self::typeOf($get) === Type::Static ? self::withoutSlashes($state, trailing: true) : $state;
+        $toPath = fn (?string $state, Get $get): ?string => self::typeOf($get) !== Type::Replace && !self::isUrl($state) ? self::withoutSlashes($state, trailing: false) : $state;
 
         return Section::make(__('filament-redirects::general.redirect_details'))
             ->description(__('filament-redirects::general.paths_on', ['host' => parse_url((string) config('app.url'), PHP_URL_HOST)]))
@@ -260,7 +262,7 @@ class RedirectResource extends Resource
 
                 TextInput::make('from')
                     ->label(__('filament-redirects::general.from'))
-                    ->prefix(fn (Get $get) => self::typeOf($get) !== Type::Replace ? '/' : null)
+                    ->prefix(fn (Get $get, ?string $state) => self::typeOf($get) !== Type::Replace && $state !== '/' ? '/' : null)
                     ->formatStateUsing($fromPath)
                     ->dehydrateStateUsing($fromPath)
                     ->extraInputAttributes(self::MONOSPACE)
@@ -272,7 +274,7 @@ class RedirectResource extends Resource
 
                 TextInput::make('to')
                     ->label(__('filament-redirects::general.to'))
-                    ->prefix(fn (Get $get, ?string $state) => self::typeOf($get) !== Type::Replace && !Str::contains((string) $state, '://') ? '/' : null)
+                    ->prefix(fn (Get $get, ?string $state) => self::typeOf($get) !== Type::Replace && $state !== '/' && !self::isUrl($state) ? '/' : null)
                     ->formatStateUsing($toPath)
                     ->dehydrateStateUsing($toPath)
                     ->extraInputAttributes(self::MONOSPACE)
@@ -399,9 +401,22 @@ class RedirectResource extends Resource
         return new HtmlString(str_replace('<code>', '<code style="'.self::CODE_STYLE.'">', $html));
     }
 
-    private static function withoutLeadingSlash(?string $path): ?string
+    // The home page keeps its slash: its path is `/`, and an empty field fails `required` or never matches.
+    private static function withoutSlashes(?string $path, bool $trailing): ?string
     {
-        return $path === null ? null : ltrim($path, '/');
+        if ($path === null || trim($path, '/') === '') {
+            return $path;
+        }
+
+        return $trailing ? trim($path, '/') : ltrim($path, '/');
+    }
+
+    /**
+     * Whether the redirector sends a visitor to this value as it is, rather than to a path on this site.
+     */
+    private static function isUrl(?string $value): bool
+    {
+        return $value !== null && app(UrlGenerator::class)->isValidUrl($value);
     }
 
     private static function typeOf(Get $get): Type

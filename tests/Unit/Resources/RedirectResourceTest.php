@@ -23,7 +23,8 @@ it('shows a destination on this site as its path', function () {
 
 it('marks a destination on another domain', function () {
     expect(RedirectResource::displayUrl('https://www.hypotheekbond.nl/adviseurs'))->toBe('↗ www.hypotheekbond.nl/adviseurs')
-        ->and(RedirectResource::displayUrl('https://example.com.evil.test/x'))->toBe('↗ example.com.evil.test/x');
+        ->and(RedirectResource::displayUrl('https://example.com.evil.test/x'))->toBe('↗ example.com.evil.test/x')
+        ->and(RedirectResource::displayUrl('//cdn.example.net/x'))->toBe('↗ cdn.example.net/x');
 });
 
 it('shows the part a replace redirect puts in as written', function () {

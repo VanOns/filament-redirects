@@ -129,3 +129,11 @@ it('resolves a url this redirect does not match to null', function () {
     expect($redirect->resolve('/other'))->toBeNull()
         ->and($redirect->resolve('/old/'))->toBe('new');
 });
+
+it('resolves the home page to the redirect from it', function () {
+    $redirect = new Redirect(['from' => '/', 'to' => 'campagne', 'type' => Type::Static, 'status_code' => 302, 'include_query' => false]);
+
+    expect($redirect->resolve('/'))->toBe('campagne')
+        ->and($redirect->resolve('https://example.com'))->toBe('campagne')
+        ->and($redirect->resolve('/0'))->toBeNull();
+});
