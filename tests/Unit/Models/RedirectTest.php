@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use VanOns\FilamentRedirects\Enums\Keys;
 use VanOns\FilamentRedirects\Enums\Type;
@@ -86,4 +87,31 @@ it('builds correct url for replace type', function () {
     $redirect = new Redirect(['from' => 'en/blog', 'to' => 'nl/blog', 'type' => Type::Replace, 'status_code' => 301, 'include_query' => false]);
 
     expect($redirect->createUrl('en/blog/my-post'))->toBe('nl/blog/my-post');
+});
+
+it('fills the captured groups into the destination for match type', function () {
+    $redirect = new Redirect(['from' => '^vestigingen/([^/]+)/faqs/.*$', 'to' => 'vestigingen/$1/#veelgestelde-vragen', 'type' => Type::Match, 'status_code' => 301, 'include_query' => false]);
+
+    expect($redirect->createUrl('vestigingen/breda/faqs/wat-kost-advies'))->toBe('vestigingen/breda/#veelgestelde-vragen');
+});
+
+it('fills braced group references and leaves an empty string for a group that captured nothing', function () {
+    $redirect = new Redirect(['from' => '^shop/(\d+)(-sale)?$', 'to' => 'products/${1}0$2', 'type' => Type::Match, 'status_code' => 301, 'include_query' => false]);
+
+    expect($redirect->createUrl('shop/12'))->toBe('products/120')
+        ->and($redirect->createUrl('shop/12-sale'))->toBe('products/120-sale');
+});
+
+it('puts the query in front of the fragment of the destination', function () {
+    app()->instance('request', Request::create('/old?utm_source=mail'));
+
+    $redirect = new Redirect(['from' => 'old', 'to' => 'new?page=2#faq', 'type' => Type::Static, 'status_code' => 301, 'include_query' => true]);
+
+    expect($redirect->createUrl('old'))->toBe('new?page=2&utm_source=mail#faq');
+});
+
+it('keeps a reference to a group the pattern does not have as written', function () {
+    $redirect = new Redirect(['from' => '^acties/.*$', 'to' => 'aanbiedingen/$5-korting', 'type' => Type::Match, 'status_code' => 301, 'include_query' => false]);
+
+    expect($redirect->createUrl('acties/zomer'))->toBe('aanbiedingen/$5-korting');
 });

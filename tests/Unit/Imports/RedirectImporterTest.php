@@ -70,3 +70,10 @@ it('rejects an import row that would create a circular redirect', function () {
 
     expect(Redirect::where('from', 'a')->exists())->toBeFalse();
 });
+
+it('rejects a match import row whose destination refers to a group the pattern does not have', function () {
+    expect(fn () => importRow(baseRow(['from' => '^shop/(\d+)$', 'to' => 'products/$2', 'type' => 'match'])))
+        ->toThrow(ValidationException::class);
+
+    expect(Redirect::where('from', '^shop/(\d+)$')->exists())->toBeFalse();
+});

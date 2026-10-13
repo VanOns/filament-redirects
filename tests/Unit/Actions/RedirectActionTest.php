@@ -58,6 +58,13 @@ it('does not match when regex does not match for match type', function () {
     expect($result)->toBeNull();
 });
 
+it('redirects to the captured groups of a match type', function () {
+    Redirect::create(['from' => '^vestigingen/([^/]+)/faqs/.*$', 'to' => 'vestigingen/$1/#veelgestelde-vragen', 'type' => Type::Match, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
+
+    $result = (new RedirectAction('vestigingen/breda/faqs/wat-kost-advies'))();
+    expect($result->getTargetUrl())->toBe(url('vestigingen/breda/#veelgestelde-vragen'));
+});
+
 it('redirects using replace type', function () {
     Redirect::create(['from' => 'en/blog', 'to' => 'nl/blog', 'type' => Type::Replace, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
 
@@ -171,4 +178,26 @@ it('caches only the pattern redirects', function () {
 
     expect(Cache::get(Keys::Cache->value))->toHaveCount(1)
         ->and((new RedirectAction('old-page'))()->getTargetUrl())->toContain('new-page');
+});
+
+it('does not let a captured group send the visitor off-site', function () {
+    Redirect::create(['from' => '^nl/(.*)$', 'to' => '$1', 'type' => Type::Match, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
+
+    expect((new RedirectAction('nl/https://evil.test'))())->toBeNull()
+        ->and((new RedirectAction('nl///evil.test'))())->toBeNull()
+        ->and((new RedirectAction('nl/over-ons'))()->getTargetUrl())->toBe(url('over-ons'));
+});
+
+it('lets a captured group go only to the host the destination names', function () {
+    Redirect::create(['from' => '^nl/(.*)$', 'to' => 'https://other.test$1', 'type' => Type::Match, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
+
+    expect((new RedirectAction('nl//blog'))()->getTargetUrl())->toBe('https://other.test/blog')
+        ->and((new RedirectAction('nl/.evil.test'))())->toBeNull();
+});
+
+it('does not let a replace redirect send the visitor off-site', function () {
+    Redirect::create(['from' => 'nl/', 'to' => '', 'type' => Type::Replace, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
+
+    expect((new RedirectAction('nl///evil.test'))())->toBeNull()
+        ->and((new RedirectAction('nl/blog'))()->getTargetUrl())->toBe(url('blog'));
 });

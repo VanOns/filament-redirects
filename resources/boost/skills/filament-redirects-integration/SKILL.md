@@ -44,7 +44,7 @@ Scope: `Redirect::active()` filters `where('active', true)`.
 | Type | Matching | Destination | Example |
 |------|----------|-------------|---------|
 | `Type::Static` | `$from === request()->path()` (exact) | Literal `to` | `from='old-page'`, `to='new-page'` → `/old-page` → `/new-page` |
-| `Type::Match` | `preg_match('/<from>/', request()->path())` (forward slashes auto-escaped, no delimiters in `from`) | Literal `to` (no capture-group interpolation) | `from='blog/[0-9]+/.*'`, `to='blog'` → `/blog/123/x` → `/blog` |
+| `Type::Match` | `preg_match(Redirect::pattern($from), request()->path())` (`from` is the bare regex; `Redirect::pattern()` wraps it in `#` delimiters) | `to` with `$1` / `${1}` filled from the captured groups | `from='^blog/([0-9]+)/.*$'`, `to='archive/$1'` → `/blog/123/x` → `/archive/123` |
 | `Type::Replace` | Substring check via `str_contains` | `str_replace($from, $to, request()->path())` | `from='en/blog'`, `to='nl/blog'` → `/en/blog/x` → `/nl/blog/x` |
 
 Always strip leading/trailing slashes from both `from` and `to` — match logic is path-relative.

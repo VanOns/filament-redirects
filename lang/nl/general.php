@@ -21,6 +21,7 @@ return [
     'navigation-group' => 'Redirects',
     'regex' => 'Regex',
     'regex_help' => 'Als dit is ingeschakeld, wordt de "Van" -waarde als een reguliere expressie behandeld.',
+    'to_match_help' => 'Gebruik $1, $2 enzovoort voor wat de groepen in het "Van"-patroon hebben gevonden.',
     'type' => 'Type',
     'open' => 'Open',
     'redirect_details' => 'Redirect details',
@@ -34,4 +35,5 @@ return [
     'from_equals_to' => 'Het "Naar" veld mag niet hetzelfde zijn als het "Van" veld.',
     'circular_redirect' => 'Deze redirect veroorzaakt een circulaire keten.',
     'invalid_regex' => 'Het "Van" veld is geen geldige reguliere expressie.',
+    'unknown_group_reference' => 'Het "Naar" veld gebruikt :reference, maar het "Van"-patroon heeft geen groep met dat nummer.',
 ];
