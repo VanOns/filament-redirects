@@ -19,8 +19,8 @@ A request to `/old-page` redirects to `/new-page`.
 ## Match
 
 The `from` value is used as a regular expression (PCRE, without delimiters) and tested against
-the current request path. If it matches, the visitor is redirected to the static `to` value.
-Captured groups are not interpolated — the destination is always a fixed URL.
+the current request path, which has no leading slash. If it matches, the visitor is redirected
+to the `to` value.
 
 | Field  | Value            |
 |--------|------------------|
@@ -28,6 +28,19 @@ Captured groups are not interpolated — the destination is always a fixed URL.
 | `to`   | `blog`           |
 
 A request to `/blog/123/my-old-post` matches the pattern and redirects to `/blog`.
+
+The `to` value can use what the groups in the pattern captured: `$1` for the first group, `$2` for
+the second, and `${1}` when a digit follows the reference. A group that captured nothing leaves
+an empty string. A reference to a group the pattern does not have is rejected when saving or
+importing; one that was stored before stays as written.
+
+| Field  | Value                                  |
+|--------|----------------------------------------|
+| `from` | `^locations/([^/]+)/faqs/.*$`          |
+| `to`   | `locations/$1#faq`                     |
+
+A request to `/locations/amsterdam/faqs/opening-hours` redirects to `/locations/amsterdam#faq`.
+With `include_query` on, the query string goes in front of the `#`.
 
 > **Note:** the pattern is unanchored, so it matches anywhere in the path. A `from` of `admin`
 > also matches `/public/administrator/login`. Regex metacharacters are interpreted rather than

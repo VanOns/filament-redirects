@@ -58,6 +58,13 @@ it('does not match when regex does not match for match type', function () {
     expect($result)->toBeNull();
 });
 
+it('redirects to the captured groups of a match type', function () {
+    Redirect::create(['from' => '^vestigingen/([^/]+)/faqs/.*$', 'to' => 'vestigingen/$1/#veelgestelde-vragen', 'type' => Type::Match, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
+
+    $result = (new RedirectAction('vestigingen/breda/faqs/wat-kost-advies'))();
+    expect($result->getTargetUrl())->toBe(url('vestigingen/breda/#veelgestelde-vragen'));
+});
+
 it('redirects using replace type', function () {
     Redirect::create(['from' => 'en/blog', 'to' => 'nl/blog', 'type' => Type::Replace, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
 

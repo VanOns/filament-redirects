@@ -11,6 +11,7 @@ use VanOns\FilamentRedirects\Enums\Type;
 use VanOns\FilamentRedirects\Models\Redirect;
 use VanOns\FilamentRedirects\Rules\NoCircularRedirect;
 use VanOns\FilamentRedirects\Rules\NotSelfRedirect;
+use VanOns\FilamentRedirects\Rules\ValidGroupReferences;
 use VanOns\FilamentRedirects\Rules\ValidRegex;
 
 class RedirectImporter extends Importer
@@ -58,6 +59,7 @@ class RedirectImporter extends Importer
 
         if (($this->data['type'] ?? null) === Type::Match->value) {
             $rules['from'] = [new ValidRegex()];
+            $rules['to'][] = new ValidGroupReferences($from);
         }
 
         $validator = validator(

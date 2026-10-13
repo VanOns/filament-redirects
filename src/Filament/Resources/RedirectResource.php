@@ -35,6 +35,7 @@ use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\ListRedir
 use VanOns\FilamentRedirects\Models\Redirect;
 use VanOns\FilamentRedirects\Rules\NoCircularRedirect;
 use VanOns\FilamentRedirects\Rules\NotSelfRedirect;
+use VanOns\FilamentRedirects\Rules\ValidGroupReferences;
 use VanOns\FilamentRedirects\Rules\ValidRegex;
 
 class RedirectResource extends Resource
@@ -94,6 +95,8 @@ class RedirectResource extends Resource
                             ->reactive()
                             ->rule(fn (Get $get) => new NotSelfRedirect($get('from')))
                             ->rule(fn (Get $get) => new NoCircularRedirect($get('from')))
+                            ->rules(fn (Get $get) => $get('type') === Type::Match->value ? [new ValidGroupReferences($get('from'))] : [])
+                            ->helperText(fn (Get $get) => $get('type') === Type::Match->value ? __('filament-redirects::general.to_match_help') : null)
                             ->suffixAction(OpenAction::make()),
                         Select::make('type')
                             ->label(__('filament-redirects::general.type'))

@@ -21,6 +21,7 @@ return [
     'navigation-group' => 'Redirects',
     'regex' => 'Regex',
     'regex_help' => 'If this is enabled, the "From" value will be treated as a regular expression.',
+    'to_match_help' => 'Use $1, $2 and so on for what the groups in the "From" pattern captured.',
     'type' => 'Type',
     'open' => 'Open',
     'redirect_details' => 'Redirect details',
@@ -34,4 +35,5 @@ return [
     'from_equals_to' => 'The "To" field cannot be the same as the "From" field.',
     'circular_redirect' => 'This redirect creates a circular chain.',
     'invalid_regex' => 'The "From" field is not a valid regular expression.',
+    'unknown_group_reference' => 'The "To" field uses :reference, but the "From" pattern has no group with that number.',
 ];
