@@ -140,13 +140,30 @@ class Redirect extends Model
      */
     public function createUrl(?string $path = null): ?string
     {
-        $url = $this->destinationFor($path ?? request()->path());
+        return $this->destinationWithQuery($path ?? request()->path(), request()->getQueryString()) ?? url('/');
+    }
 
-        if ($this->include_query) {
-            $url = self::withQuery($url, request()->getQueryString());
+    /**
+     * Where a visitor to the given URL or path is sent, or null when this redirect does not match it.
+     *
+     * @throws BindingResolutionException
+     */
+    public function resolve(string $url): ?string
+    {
+        $path = trim((string) parse_url($url, PHP_URL_PATH), '/');
+
+        if (!$this->matches($path)) {
+            return null;
         }
 
-        return $url ?? url('/');
+        return $this->destinationWithQuery($path, parse_url($url, PHP_URL_QUERY) ?: null) ?? url('/');
+    }
+
+    private function destinationWithQuery(string $path, ?string $query): ?string
+    {
+        $url = $this->destinationFor($path);
+
+        return $this->include_query ? self::withQuery($url, $query) : $url;
     }
 
     public function destinationFor(string $path): ?string

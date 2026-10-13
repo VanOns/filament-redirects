@@ -115,3 +115,17 @@ it('keeps a reference to a group the pattern does not have as written', function
 
     expect($redirect->createUrl('acties/zomer'))->toBe('aanbiedingen/$5-korting');
 });
+
+it('resolves a url to where the visitor is sent', function () {
+    $redirect = new Redirect(['from' => '^vestigingen/([^/]+)/faqs(/.*)?$', 'to' => 'vestigingen/$1/#veelgestelde-vragen', 'type' => Type::Match, 'status_code' => 301, 'include_query' => true]);
+
+    expect($redirect->resolve('vestigingen/breda/faqs/wat-kost-advies/?utm_source=mail'))->toBe('vestigingen/breda/?utm_source=mail#veelgestelde-vragen')
+        ->and($redirect->resolve('https://example.com/vestigingen/breda/faqs'))->toBe('vestigingen/breda/#veelgestelde-vragen');
+});
+
+it('resolves a url this redirect does not match to null', function () {
+    $redirect = new Redirect(['from' => 'old', 'to' => 'new', 'type' => Type::Static, 'status_code' => 301, 'include_query' => false]);
+
+    expect($redirect->resolve('/other'))->toBeNull()
+        ->and($redirect->resolve('/old/'))->toBe('new');
+});
