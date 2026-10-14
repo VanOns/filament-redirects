@@ -42,7 +42,7 @@ enum DestinationHealth: string implements HasColor, HasIcon, HasLabel
     public function getIcon(): string
     {
         return match ($this) {
-            self::Healthy => 'heroicon-m-check-circle',
+            self::Healthy => 'heroicon-m-check',
             self::Blocked => 'heroicon-m-shield-exclamation',
             self::Broken => 'heroicon-m-x-circle',
         };

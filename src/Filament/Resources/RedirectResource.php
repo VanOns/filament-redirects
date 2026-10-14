@@ -68,6 +68,12 @@ class RedirectResource extends Resource
         'replace' => 'heroicon-m-arrows-right-left',
     ];
 
+    // A destination without a result: not checked yet, or never checked because it depends on the visited URL.
+    private const UNCHECKED_ICONS = [
+        'unchecked' => 'heroicon-m-clock',
+        'uncheckable' => 'heroicon-m-minus',
+    ];
+
     // Filament's fi-font-mono only styles text entries, so inputs get its font stack, fallbacks included.
     private const MONOSPACE = ['style' => 'font-family: var(--mono-font-family), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'];
 
@@ -148,7 +154,12 @@ class RedirectResource extends Resource
                     ->searchable(['from', 'to', 'title', 'category']),
                 IconColumn::make('destination_health')
                     ->label(__('filament-redirects::general.destination'))
-                    ->tooltip(fn (Redirect $record): ?string => self::destinationCheckSummary($record))
+                    ->state(fn (Redirect $record): string => $record->destination_health->value ?? ($record->checkableDestination() === null ? 'uncheckable' : 'unchecked'))
+                    ->icon(fn (string $state): string => DestinationHealth::tryFrom($state)?->getIcon() ?? self::UNCHECKED_ICONS[$state])
+                    ->color(fn (string $state): string => DestinationHealth::tryFrom($state)?->getColor() ?? 'gray')
+                    ->tooltip(fn (Redirect $record): string => self::destinationTooltip($record))
+                    ->action(self::checkDestinationAction())
+                    ->disabledClick(fn (Redirect $record): bool => !self::canCheckDestination($record))
                     ->alignCenter()
                     ->visible(self::checksEnabled()),
                 TextColumn::make('type')
@@ -228,14 +239,6 @@ class RedirectResource extends Resource
                     ->iconButton()
                     ->url(fn (Redirect $record) => url($record->from), true)
                     ->visible(fn (Redirect $record) => $record->type === Type::Static),
-                Action::make('check_destination')
-                    ->label(__('filament-redirects::general.check_destination'))
-                    ->icon('heroicon-o-signal')
-                    ->color('gray')
-                    ->iconButton()
-                    ->action(fn (Redirect $record) => self::checkDestination($record))
-                    ->authorize(fn (Redirect $record): bool => self::canEdit($record))
-                    ->visible(fn (Redirect $record): bool => self::checksEnabled() && $record->checkableDestination() !== null),
                 EditAction::make()
                     ->iconButton(),
             ])
@@ -245,7 +248,7 @@ class RedirectResource extends Resource
                         ->exporter(RedirectExporter::class),
                     BulkAction::make('check_destinations')
                         ->label(__('filament-redirects::general.check_destinations'))
-                        ->icon('heroicon-o-signal')
+                        ->icon('heroicon-o-arrow-path')
                         ->action(fn (Collection $records) => self::queueDestinationChecks($records))
                         ->deselectRecordsAfterCompletion()
                         ->visible(self::checksEnabled()),
@@ -539,6 +542,31 @@ class RedirectResource extends Resource
     private static function checksEnabled(): bool
     {
         return (bool) config('filament-redirects.checks.enabled', false);
+    }
+
+    private static function canCheckDestination(Redirect $redirect): bool
+    {
+        return $redirect->checkableDestination() !== null && self::canEdit($redirect);
+    }
+
+    private static function destinationTooltip(Redirect $redirect): string
+    {
+        $summary = self::destinationCheckSummary($redirect);
+
+        return match (true) {
+            $redirect->checkableDestination() === null => __('filament-redirects::general.destination_uncheckable'),
+            !self::canEdit($redirect) => $summary ?? __('filament-redirects::general.destination_unchecked'),
+            $summary === null => __('filament-redirects::general.destination_unchecked_tooltip'),
+            default => __('filament-redirects::general.destination_tooltip', ['summary' => $summary]),
+        };
+    }
+
+    private static function checkDestinationAction(): Action
+    {
+        return Action::make('check_destination')
+            ->action(fn (Redirect $record) => self::checkDestination($record))
+            ->authorize(fn (Redirect $record): bool => self::canEdit($record))
+            ->visible(fn (Redirect $record): bool => $record->checkableDestination() !== null);
     }
 
     private static function checkDestination(Redirect $redirect): void

@@ -78,9 +78,10 @@ resource shows the result of the last check for every redirect. A destination en
 | Blocks checks | The destination answers `401`, `403` or `429`. A login or bot protection refuses the check, while a visitor may well get through, so open the link to see for yourself. |
 | Broken | Any other status, a destination that keeps redirecting, or no answer at all. |
 
-The navigation badge counts the active redirects with a broken destination. Editors can check a single redirect from
-its row, or a selection with the bulk action. Changing the destination of a redirect clears the result of its last
-check.
+A clock means the destination has not been checked yet, a dash that it is not checked automatically. The navigation
+badge counts the active redirects with a broken destination. Editors check a single redirect again by clicking its
+result in the list, or a selection with the bulk action. Changing the destination of a redirect clears the result of its
+last check.
 
 Only a destination that is the same for every visitor can be checked. A `replace` redirect, and a `match` redirect
 that fills in `$1` and the like, depend on the visited URL and are skipped.
