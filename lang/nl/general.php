@@ -60,4 +60,18 @@ return [
         'no_match' => 'Komt niet overeen',
         'invalid' => 'Ongeldige reguliere expressie',
     ],
+    'destination' => 'Bestemming',
+    'destination_health' => [
+        'healthy' => 'Werkt',
+        'blocked' => 'Blokkeert controle',
+        'broken' => 'Kapot',
+    ],
+    'destination_checked' => ':health: :result, gecontroleerd :time',
+    'destination_no_response' => 'geen antwoord',
+    'destination_unchecked' => 'Nog niet gecontroleerd',
+    'destination_uncheckable' => 'Wordt niet automatisch gecontroleerd',
+    'check_destination' => 'Bestemming controleren',
+    'check_destinations' => 'Bestemmingen controleren',
+    'destinations_queued' => 'De bestemming van :count redirect wordt gecontroleerd.|De bestemmingen van :count redirects worden gecontroleerd.',
+    'broken_destinations' => 'Redirects met een kapotte bestemming',
 ];

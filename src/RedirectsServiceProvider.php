@@ -2,8 +2,10 @@
 
 namespace VanOns\FilamentRedirects;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider;
+use VanOns\FilamentRedirects\Commands\CheckDestinationsCommand;
 use VanOns\FilamentRedirects\Middleware\RedirectMiddleware;
 
 class RedirectsServiceProvider extends ServiceProvider
@@ -21,6 +23,18 @@ class RedirectsServiceProvider extends ServiceProvider
         }
 
         if ($this->app->runningInConsole()) {
+            $this->commands([CheckDestinationsCommand::class]);
+
+            $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
+                $cron = config('filament-redirects.checks.schedule');
+
+                if (!config('filament-redirects.checks.enabled') || blank($cron)) {
+                    return;
+                }
+
+                $schedule->command(CheckDestinationsCommand::class)->cron($cron);
+            });
+
             $this->publishesMigrations(
                 paths: [
                     __DIR__.'/../database/migrations' => database_path('migrations'),

@@ -2,7 +2,9 @@
 
 namespace VanOns\FilamentRedirects\Filament\Resources;
 
+use Carbon\CarbonInterface;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -15,6 +17,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -31,14 +34,18 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Routing\UrlGenerator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use VanOns\FilamentRedirects\Actions\CheckDestinationAction;
+use VanOns\FilamentRedirects\Enums\DestinationHealth;
 use VanOns\FilamentRedirects\Enums\Type;
 use VanOns\FilamentRedirects\Filament\Actions\OpenAction;
 use VanOns\FilamentRedirects\Filament\Exports\RedirectExporter;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\CreateRedirect;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\EditRedirect;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\ListRedirects;
+use VanOns\FilamentRedirects\Jobs\CheckDestination;
 use VanOns\FilamentRedirects\Models\Redirect;
 use VanOns\FilamentRedirects\Rules\NoCircularRedirect;
 use VanOns\FilamentRedirects\Rules\NotSelfRedirect;
@@ -82,6 +89,30 @@ class RedirectResource extends Resource
         return trans_choice('filament-redirects::models/redirect.label', 2);
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        if (!self::checksEnabled()) {
+            return null;
+        }
+
+        $broken = Redirect::query()
+            ->active()
+            ->where('destination_health', DestinationHealth::Broken)
+            ->count();
+
+        return $broken > 0 ? (string) $broken : null;
+    }
+
+    public static function getNavigationBadgeColor(): string
+    {
+        return 'danger';
+    }
+
+    public static function getNavigationBadgeTooltip(): string
+    {
+        return __('filament-redirects::general.broken_destinations');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -115,6 +146,11 @@ class RedirectResource extends Resource
                     ->wrap()
                     ->sortable()
                     ->searchable(['from', 'to', 'title', 'category']),
+                IconColumn::make('destination_health')
+                    ->label(__('filament-redirects::general.destination'))
+                    ->tooltip(fn (Redirect $record): ?string => self::destinationCheckSummary($record))
+                    ->alignCenter()
+                    ->visible(self::checksEnabled()),
                 TextColumn::make('type')
                     ->label(__('filament-redirects::general.type'))
                     ->state(fn (Redirect $record) => __("filament-redirects::models/redirect.short_types.{$record->type->value}"))
@@ -178,6 +214,10 @@ class RedirectResource extends Resource
                 SelectFilter::make('status_code')
                     ->label(__('filament-redirects::general.status_code'))
                     ->options(self::statusCodeOptions()),
+                SelectFilter::make('destination_health')
+                    ->label(__('filament-redirects::general.destination'))
+                    ->options(DestinationHealth::class)
+                    ->visible(self::checksEnabled()),
                 TrashedFilter::make(),
             ])
             ->recordActions([
@@ -188,6 +228,14 @@ class RedirectResource extends Resource
                     ->iconButton()
                     ->url(fn (Redirect $record) => url($record->from), true)
                     ->visible(fn (Redirect $record) => $record->type === Type::Static),
+                Action::make('check_destination')
+                    ->label(__('filament-redirects::general.check_destination'))
+                    ->icon('heroicon-o-signal')
+                    ->color('gray')
+                    ->iconButton()
+                    ->action(fn (Redirect $record) => self::checkDestination($record))
+                    ->authorize(fn (Redirect $record): bool => self::canEdit($record))
+                    ->visible(fn (Redirect $record): bool => self::checksEnabled() && $record->checkableDestination() !== null),
                 EditAction::make()
                     ->iconButton(),
             ])
@@ -195,11 +243,33 @@ class RedirectResource extends Resource
                 BulkActionGroup::make([
                     ExportBulkAction::make()
                         ->exporter(RedirectExporter::class),
+                    BulkAction::make('check_destinations')
+                        ->label(__('filament-redirects::general.check_destinations'))
+                        ->icon('heroicon-o-signal')
+                        ->action(fn (Collection $records) => self::queueDestinationChecks($records))
+                        ->deselectRecordsAfterCompletion()
+                        ->visible(self::checksEnabled()),
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
             ]);
+    }
+
+    /**
+     * What the last destination check found, such as `Broken: 404, checked 2 hours ago`.
+     */
+    public static function destinationCheckSummary(Redirect $redirect): ?string
+    {
+        if ($redirect->destination_health === null || $redirect->destination_checked_at === null) {
+            return null;
+        }
+
+        return (string) __('filament-redirects::general.destination_checked', [
+            'health' => $redirect->destination_health->getLabel(),
+            'result' => $redirect->destination_status ?? __('filament-redirects::general.destination_no_response'),
+            'time' => $redirect->destination_checked_at->diffForHumans(options: CarbonInterface::JUST_NOW),
+        ]);
     }
 
     /**
@@ -386,6 +456,16 @@ class RedirectResource extends Resource
                 DateTimePicker::make('last_hit')
                     ->label(__('filament-redirects::general.last_hit'))
                     ->disabled(),
+
+                TextEntry::make('destination_check')
+                    ->label(__('filament-redirects::general.destination'))
+                    ->state(fn (Redirect $record): ?string => self::destinationCheckSummary($record))
+                    ->placeholder(fn (Redirect $record): string => $record->checkableDestination() === null
+                        ? __('filament-redirects::general.destination_uncheckable')
+                        : __('filament-redirects::general.destination_unchecked'))
+                    ->icon(fn (Redirect $record): ?string => $record->destination_health?->getIcon())
+                    ->iconColor(fn (Redirect $record): ?string => $record->destination_health?->getColor())
+                    ->visible(self::checksEnabled()),
             ])
             ->visibleOn([Operation::View, Operation::Edit]);
     }
@@ -454,6 +534,36 @@ class RedirectResource extends Resource
             $redirect->resolve((string) $get('test_url')) === null => 'no_match',
             default => 'match',
         };
+    }
+
+    private static function checksEnabled(): bool
+    {
+        return (bool) config('filament-redirects.checks.enabled', false);
+    }
+
+    private static function checkDestination(Redirect $redirect): void
+    {
+        $health = (new CheckDestinationAction($redirect))();
+
+        Notification::make()
+            ->title(self::destinationCheckSummary($redirect) ?? __('filament-redirects::general.destination_uncheckable'))
+            ->status($health?->getColor() ?? 'info')
+            ->send();
+    }
+
+    /**
+     * @param  Collection<int, Redirect>  $redirects
+     */
+    private static function queueDestinationChecks(Collection $redirects): void
+    {
+        $checkable = $redirects->filter(fn (Redirect $redirect): bool => self::canEdit($redirect) && $redirect->checkableDestination() !== null);
+
+        $checkable->each(fn (Redirect $redirect) => CheckDestination::dispatch($redirect));
+
+        Notification::make()
+            ->title(trans_choice('filament-redirects::general.destinations_queued', $checkable->count(), ['count' => $checkable->count()]))
+            ->success()
+            ->send();
     }
 
     private static function displayLabels(Redirect $redirect): ?string

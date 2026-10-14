@@ -49,7 +49,10 @@ class RedirectAction
 
     private function redirectTo(Redirect $route): RedirectResponse|Redirector
     {
-        $route->hit();
+        // a destination check is no visitor, and would make an unused redirect look in use
+        if (!$this->isDestinationCheck()) {
+            $route->hit();
+        }
 
         return redirect(
             to: $route->createUrl($this->path),
@@ -81,6 +84,13 @@ class RedirectAction
 
         // forwarded values belong to one visitor's request, so keep the response out of caches
         return $headers + ['Cache-Control' => 'no-store'];
+    }
+
+    private function isDestinationCheck(): bool
+    {
+        $userAgent = config('filament-redirects.checks.user_agent');
+
+        return filled($userAgent) && $this->request->userAgent() === $userAgent;
     }
 
     private function findRedirect(): ?Redirect

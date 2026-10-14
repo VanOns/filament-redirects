@@ -60,4 +60,18 @@ return [
         'no_match' => 'Does not match',
         'invalid' => 'Invalid regular expression',
     ],
+    'destination' => 'Destination',
+    'destination_health' => [
+        'healthy' => 'Works',
+        'blocked' => 'Blocks checks',
+        'broken' => 'Broken',
+    ],
+    'destination_checked' => ':health: :result, checked :time',
+    'destination_no_response' => 'no response',
+    'destination_unchecked' => 'Not checked yet',
+    'destination_uncheckable' => 'Not checked automatically',
+    'check_destination' => 'Check destination',
+    'check_destinations' => 'Check destinations',
+    'destinations_queued' => 'The destination of :count redirect is being checked.|The destinations of :count redirects are being checked.',
+    'broken_destinations' => 'Redirects with a broken destination',
 ];

@@ -27,4 +27,15 @@ return [
         'enabled' => false,
         'ttl' => 60,
     ],
+    // Checks whether the destination of each redirect still works. This requests every destination, so it is off by default.
+    'checks' => [
+        'enabled' => env('FILAMENT_REDIRECTS_CHECKS_ENABLED', false),
+        // A cron expression, or null to schedule the `filament-redirects:check` command yourself.
+        'schedule' => '0 3 * * *',
+        'queue' => null,
+        'timeout' => 10,
+        // Relative destinations are requested on this URL instead of app.url, for a server that cannot reach its own public URL.
+        'base_url' => null,
+        'user_agent' => 'Mozilla/5.0 (compatible; FilamentRedirects; +https://github.com/VanOns/filament-redirects)',
+    ],
 ];

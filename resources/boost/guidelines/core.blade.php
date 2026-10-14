@@ -45,6 +45,11 @@ class AdminPanelProvider extends PanelProvider
 | `VanOns\FilamentRedirects\Filament\Imports\RedirectImporter` | Filament Importer used by the resource's `ImportAction`. |
 | `VanOns\FilamentRedirects\Filament\Actions\OpenAction` | Filament action that opens a path in a new tab; reads the field's state for the URL. |
 | `VanOns\FilamentRedirects\Enums\Keys` | `Keys::Cache` → `redirector-models` (cache key for the match and replace redirects). |
+| `VanOns\FilamentRedirects\Enums\DestinationHealth` | Result of a destination check: `Healthy` (2xx), `Blocked` (401/403/429), `Broken` (anything else, or no answer). Stored on `Redirect::$destination_health`, null when not checked. |
+| `VanOns\FilamentRedirects\Actions\CheckDestinationAction` | Invokable. `(new CheckDestinationAction($redirect))()` requests the destination, stores the result and returns the `DestinationHealth`, or null when the destination depends on the visited URL. |
+| `VanOns\FilamentRedirects\Jobs\CheckDestination` | Queued, unique per redirect. Runs `CheckDestinationAction`. |
+| `VanOns\FilamentRedirects\Events\DestinationBroken` | Dispatched when a check finds a destination broken, once until it works again. Carries `$redirect`. |
+| `filament-redirects:check` | Artisan command. Queues a check per active checkable redirect. `--id=*` to limit, `--sync` to check right away. |
 
 ### Config (`config/filament-redirects.php`)
 
@@ -56,6 +61,12 @@ class AdminPanelProvider extends PanelProvider
 | `default_status_code` | `301` | Default selected in the form (DB default is set in the migration). |
 | `cache.enabled` | `false` | Caches the active match and replace redirects; static redirects are looked up by path. |
 | `cache.ttl` | `60` | Seconds. Auto-invalidated on model `created/updated/deleted/restored`. |
+| `checks.enabled` | `false` | Destination checks: schedules the command and shows the results in the resource. Env: `FILAMENT_REDIRECTS_CHECKS_ENABLED`. |
+| `checks.schedule` | `'0 3 * * *'` | Cron expression. `null` to schedule `filament-redirects:check` yourself. |
+| `checks.queue` | `null` | Queue for the check jobs. |
+| `checks.timeout` | `10` | Seconds per request. |
+| `checks.base_url` | `null` | Host for relative destinations instead of `app.url`. |
+| `checks.user_agent` | `Mozilla/5.0 (compatible; FilamentRedirects; …)` | Sent by the checks. Requests with it do not count as a hit. |
 
 Publish tags: `vanons-filament-redirects-migrations`, `vanons-filament-redirects-config`, `vanons-filament-redirects-translations`.
 
@@ -79,4 +90,6 @@ Publish tags: `vanons-filament-redirects-migrations`, `vanons-filament-redirects
 - The `priority` column is auto-set on create (`max(priority) + 1`) when null. Reorder via the resource's drag handle, or set explicitly.
 - Don't rename or override the `redirects` table without also overriding `Redirect::$table` — the action queries it directly.
 - When importing many redirects programmatically with `cache.enabled=true`, prefer creating in a single batch then `Cache::forget(Keys::Cache->value)` once, rather than one-by-one.
+- Only `static` redirects and `match` redirects without `$1` in `to` are checked. Use `Redirect::checkableDestination()` to get the URL a check requests, rather than building it yourself.
+- To notify someone about a broken destination, listen to `DestinationBroken`. Do not poll the `destination_health` column.
 - Override the resource label by translating `filament-redirects::models/redirect.label` (singular/plural via `trans_choice`).
