@@ -1,5 +1,6 @@
 <?php
 
+use VanOns\FilamentRedirects\Enums\DestinationHealth;
 use VanOns\FilamentRedirects\Enums\Type;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource;
 use VanOns\FilamentRedirects\Models\Redirect;
@@ -30,4 +31,33 @@ it('marks a destination on another domain', function () {
 it('shows the part a replace redirect puts in as written', function () {
     expect(RedirectResource::displayTo(new Redirect(['from' => 'en/blog', 'to' => 'nl/blog', 'type' => Type::Replace])))->toBe('nl/blog')
         ->and(RedirectResource::displayTo(new Redirect(['from' => 'old', 'to' => null, 'type' => Type::Static])))->toBe('/');
+});
+
+it('sums up what the last destination check found', function () {
+    $this->freezeTime();
+    $broken = new Redirect(['destination_health' => DestinationHealth::Broken, 'destination_status' => 404, 'destination_checked_at' => now()->subHours(2)]);
+    $unreachable = new Redirect(['destination_health' => DestinationHealth::Broken, 'destination_error' => 'Could not resolve host', 'destination_checked_at' => now()->subHours(2)]);
+
+    expect(RedirectResource::destinationCheckSummary($broken))->toBe('Broken: 404, checked 2 hours ago')
+        ->and(RedirectResource::destinationCheckSummary($unreachable))->toBe('Broken: no response, checked 2 hours ago')
+        ->and(RedirectResource::destinationCheckSummary(new Redirect()))->toBeNull();
+});
+
+it('counts the active redirects with a broken destination in the navigation badge', function () {
+    config()->set('filament-redirects.checks.enabled', true);
+    $attributes = ['to' => 'new', 'type' => Type::Static, 'status_code' => 301];
+    Redirect::create([...$attributes, 'from' => 'a', 'active' => true, 'destination_health' => DestinationHealth::Broken]);
+    Redirect::create([...$attributes, 'from' => 'b', 'active' => true, 'destination_health' => DestinationHealth::Healthy]);
+    Redirect::create([...$attributes, 'from' => 'c', 'active' => false, 'destination_health' => DestinationHealth::Broken]);
+
+    expect(RedirectResource::getNavigationBadge())->toBe('1');
+});
+
+it('shows no navigation badge without broken destinations or with the checks disabled', function () {
+    config()->set('filament-redirects.checks.enabled', true);
+    expect(RedirectResource::getNavigationBadge())->toBeNull();
+
+    config()->set('filament-redirects.checks.enabled', false);
+    Redirect::create(['from' => 'a', 'to' => 'new', 'type' => Type::Static, 'status_code' => 301, 'active' => true, 'destination_health' => DestinationHealth::Broken]);
+    expect(RedirectResource::getNavigationBadge())->toBeNull();
 });

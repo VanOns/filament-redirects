@@ -4,6 +4,17 @@ We aim to make upgrading between versions as smooth as possible, but sometimes i
 This document will outline those steps. And as much as we try to cover all cases, we might miss some. If you come
 across such a case, please let us know by [opening an issue](https://github.com/VanOns/filament-redirects/issues), or by adding it yourself and creating a pull request.
 
+## v2.5.0
+
+Redirects can now have their destination checked. A new migration adds the columns for the result. Publish and run it:
+
+```bash
+php artisan vendor:publish --tag=vanons-filament-redirects-migrations
+php artisan migrate
+```
+
+The checks are off by default. See [Destination checks](docs/configuration.md#destination-checks) to turn them on.
+
 ## v2.3.0
 
 A static redirect is now looked up by its path instead of loading every active redirect on each request. A new

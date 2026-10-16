@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use VanOns\FilamentRedirects\Actions\RedirectAction;
@@ -85,6 +86,28 @@ it('increments hit count on a successful redirect', function () {
     $redirect = Redirect::create(['from' => 'old-page', 'to' => 'new-page', 'type' => Type::Static, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
 
     (new RedirectAction('old-page'))();
+
+    expect($redirect->fresh()->hits)->toBe(1);
+});
+
+it('does not count a hit from the destination check', function () {
+    $redirect = Redirect::create(['from' => 'old-page', 'to' => 'new-page', 'type' => Type::Static, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
+    $request = Request::create('/old-page', server: ['HTTP_USER_AGENT' => config('filament-redirects.checks.user_agent')]);
+
+    $result = (new RedirectAction('old-page', request: $request))();
+
+    expect($result->getTargetUrl())->toContain('new-page')
+        ->and($redirect->fresh()->hits)->toBe(0);
+});
+
+it('counts a hit from a visitor without a user agent', function () {
+    config()->set('filament-redirects.checks.user_agent', null);
+    $redirect = Redirect::create(['from' => 'old-page', 'to' => 'new-page', 'type' => Type::Static, 'status_code' => 301, 'active' => true, 'include_headers' => false, 'include_query' => false]);
+
+    $request = Request::create('/old-page');
+    $request->headers->remove('User-Agent');
+
+    (new RedirectAction('old-page', request: $request))();
 
     expect($redirect->fresh()->hits)->toBe(1);
 });

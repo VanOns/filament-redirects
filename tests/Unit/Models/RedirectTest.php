@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use VanOns\FilamentRedirects\Enums\DestinationHealth;
 use VanOns\FilamentRedirects\Enums\Keys;
 use VanOns\FilamentRedirects\Enums\Type;
 use VanOns\FilamentRedirects\Models\Redirect;
@@ -41,6 +42,39 @@ it('keeps cache when only the hit counter changes', function () {
     $redirect->hit();
 
     expect(Cache::has(Keys::Cache->value))->toBeTrue();
+});
+
+it('keeps cache when only the destination check changes', function () {
+    $redirect = Redirect::create(['from' => 'old', 'to' => 'new', 'type' => Type::Static, 'status_code' => 301, 'active' => true]);
+
+    Cache::put(Keys::Cache->value, 'test-value');
+    $redirect->update(['destination_health' => DestinationHealth::Broken, 'destination_status' => 404, 'destination_checked_at' => now()]);
+
+    expect(Cache::has(Keys::Cache->value))->toBeTrue();
+});
+
+it('forgets the destination check when the destination changes', function (array $change) {
+    $redirect = Redirect::create(['from' => 'old', 'to' => 'new', 'type' => Type::Static, 'status_code' => 301, 'active' => true]);
+    $redirect->update(['destination_health' => DestinationHealth::Broken, 'destination_status' => 404, 'destination_error' => null, 'destination_checked_at' => now()]);
+
+    $redirect->update($change);
+
+    $redirect->refresh();
+    expect($redirect->destination_health)->toBeNull()
+        ->and($redirect->destination_status)->toBeNull()
+        ->and($redirect->destination_checked_at)->toBeNull();
+})->with([
+    'to' => [['to' => 'newer']],
+    'type' => [['type' => Type::Match]],
+]);
+
+it('keeps the destination check when something else changes', function () {
+    $redirect = Redirect::create(['from' => 'old', 'to' => 'new', 'type' => Type::Static, 'status_code' => 301, 'active' => true]);
+    $redirect->update(['destination_health' => DestinationHealth::Broken, 'destination_status' => 404, 'destination_checked_at' => now()]);
+
+    $redirect->update(['title' => 'Campaign', 'status_code' => 302]);
+
+    expect($redirect->refresh()->destination_health)->toBe(DestinationHealth::Broken);
 });
 
 it('clears cache when redirect is soft deleted', function () {
