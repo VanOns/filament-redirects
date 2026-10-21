@@ -36,6 +36,10 @@ Skip this skill for plain admin-panel CRUD through the shipped Filament resource
 | `priority` | int | nullable | Lower is checked first. Auto-set to `max(priority)+1` on create when null. |
 | `hits` | int | (read-only) | Incremented by `Redirect::hit()` whenever the row matches a request. |
 | `last_hit` | timestamp | (read-only) | Set alongside `hits`. |
+| `destination_health` | `DestinationHealth` enum | (read-only) | Result of the last destination check. Null when not checked. Cleared when `to` or `type` changes. |
+| `destination_status` | int | (read-only) | Status the destination answered with, after following its redirects. Null when it did not answer. |
+| `destination_error` | string | (read-only) | Why the destination did not answer. |
+| `destination_checked_at` | timestamp | (read-only) | When the destination was last checked. |
 
 Scope: `Redirect::active()` filters `where('active', true)`.
 
@@ -189,8 +193,8 @@ You **must** invalidate manually after writing `match` or `replace` redirects th
 ## Anti-patterns
 
 - **Don't** prepend leading slashes to `from`/`to`. The action compares against `request()->path()` which has none, and the importer/form trim them.
-- **Don't** include regex delimiters in a `match` `from`. The action wraps the value in `/.../` itself and escapes forward slashes.
-- **Don't** put captured-group references (`$1`, `\1`) in `to` for `match` redirects — they're returned as literal strings; use `replace` if you need substitution.
+- **Don't** include regex delimiters in a `match` `from`. `Redirect::pattern()` wraps the value in `#` delimiters and escapes any `#` in it.
+- **Don't** write `\1` for a captured group in a `match` `to`. Only `$1` and `${1}` are filled in, `\1` stays as written. A reference to a group the pattern does not have is rejected on save and import.
 - **Don't** invoke `RedirectAction` and the bundled middleware simultaneously — set `add_middleware=false` if you're handling matching manually.
 - **Don't** disable `add_middleware` and `add_route` together while expecting redirects to work — at least one path (middleware, fallback route, or your own manual call) must invoke `RedirectAction`.
 - **Don't** trust `NoCircularRedirect` for non-static cycles — it only inspects `Type::Static` rows.

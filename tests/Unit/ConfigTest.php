@@ -5,5 +5,8 @@ it('has sensible defaults', function () {
         ->and(config('filament-redirects.add_route'))->toBeFalse()
         ->and(config('filament-redirects.forwarded_headers'))->toBe([])
         ->and(config('filament-redirects.cache.enabled'))->toBeFalse()
-        ->and(config('filament-redirects.default_status_code'))->toBe(301);
+        ->and(config('filament-redirects.default_status_code'))->toBe(301)
+        ->and(config('filament-redirects.checks.enabled'))->toBeFalse()
+        ->and(config('filament-redirects.checks.schedule'))->toBe('0 3 * * *')
+        ->and(config('filament-redirects.checks.base_url'))->toBeNull();
 });

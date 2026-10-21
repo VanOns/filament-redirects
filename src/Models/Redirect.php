@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use VanOns\FilamentRedirects\Enums\DestinationHealth;
 use VanOns\FilamentRedirects\Enums\Keys;
 use VanOns\FilamentRedirects\Enums\Type;
 
@@ -29,6 +30,10 @@ use VanOns\FilamentRedirects\Enums\Type;
  * @property Type $type
  * @property string|null $category
  * @property string|null $title
+ * @property DestinationHealth|null $destination_health
+ * @property int|null $destination_status
+ * @property string|null $destination_error
+ * @property Carbon|null $destination_checked_at
  */
 class Redirect extends Model
 {
@@ -39,12 +44,20 @@ class Redirect extends Model
      */
     public const GROUP_REFERENCE = '/\$(?:(\d+)|\{(\d+)\})/';
 
+    /**
+     * The columns that hold the result of the last destination check.
+     */
+    public const DESTINATION_CHECK = ['destination_health', 'destination_status', 'destination_error', 'destination_checked_at'];
+
     protected $guarded = ['id'];
 
     protected function casts(): array
     {
         return [
             'active' => 'boolean',
+            'destination_checked_at' => 'datetime',
+            'destination_health' => DestinationHealth::class,
+            'destination_status' => 'integer',
             'hits' => 'integer',
             'include_headers' => 'boolean',
             'include_query' => 'boolean',
@@ -161,6 +174,26 @@ class Redirect extends Model
         return $this->destinationWithQuery($path, parse_url($url, PHP_URL_QUERY) ?: null) ?? url('/');
     }
 
+    /**
+     * The URL a destination check requests, or null when the destination depends on the visited URL.
+     */
+    public function checkableDestination(): ?string
+    {
+        $to = (string) $this->to;
+
+        $dependsOnVisitedUrl = $this->type === Type::Replace
+            || ($this->type === Type::Match && preg_match(self::GROUP_REFERENCE, $to) === 1);
+
+        return match (true) {
+            $dependsOnVisitedUrl => null,
+            str_starts_with($to, '//') => 'https:'.$to,
+            preg_match('#^https?://#i', $to) === 1 => $to,
+            // mailto:, tel: and the like are no page to request
+            app(UrlGenerator::class)->isValidUrl($to) => null,
+            default => rtrim((string) (config('filament-redirects.checks.base_url') ?? config('app.url')), '/').'/'.ltrim($to, '/'),
+        };
+    }
+
     private function destinationWithQuery(string $path, ?string $query): ?string
     {
         $url = $this->destinationFor($path);
@@ -225,8 +258,15 @@ class Redirect extends Model
             Cache::forget(Keys::Cache->value);
         });
 
+        static::updating(function (Redirect $redirect) {
+            // the result of a check says nothing about a destination it did not request
+            if ($redirect->isDirty(['to', 'type'])) {
+                $redirect->forceFill(array_fill_keys(self::DESTINATION_CHECK, null));
+            }
+        });
+
         static::updated(function (Redirect $redirect) {
-            $changed = array_diff(array_keys($redirect->getChanges()), ['hits', 'last_hit', 'updated_at']);
+            $changed = array_diff(array_keys($redirect->getChanges()), ['hits', 'last_hit', 'updated_at', ...self::DESTINATION_CHECK]);
             if (empty($changed)) {
                 return;
             }
