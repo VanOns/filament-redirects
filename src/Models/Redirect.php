@@ -190,7 +190,7 @@ class Redirect extends Model
             preg_match('#^https?://#i', $to) === 1 => $to,
             // mailto:, tel: and the like are no page to request
             app(UrlGenerator::class)->isValidUrl($to) => null,
-            default => rtrim((string) (config('filament-redirects.checks.base_url') ?? config('app.url')), '/').'/'.ltrim($to, '/'),
+            default => rtrim((string) (config('filament-redirects.checks.base_url') ?? config('filament-redirects.base_url') ?? config('app.url')), '/').'/'.ltrim($to, '/'),
         };
     }
 

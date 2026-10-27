@@ -299,7 +299,7 @@ class RedirectResource extends Resource
      */
     public static function displayUrl(string $url): string
     {
-        $appUrl = rtrim((string) config('app.url'), '/');
+        $appUrl = rtrim((string) (config('filament-redirects.base_url') ?? config('app.url')), '/');
 
         if ($appUrl !== '' && ($url === $appUrl || Str::startsWith($url, $appUrl.'/'))) {
             $url = Str::after($url, $appUrl);
@@ -320,7 +320,7 @@ class RedirectResource extends Resource
         $toPath = fn (?string $state, Get $get): ?string => self::typeOf($get) !== Type::Replace && !self::isUrl($state) ? self::withoutSlashes($state, trailing: false) : $state;
 
         return Section::make(__('filament-redirects::general.redirect_details'))
-            ->description(__('filament-redirects::general.paths_on', ['host' => parse_url((string) config('app.url'), PHP_URL_HOST)]))
+            ->description(__('filament-redirects::general.paths_on', ['host' => parse_url((string) (config('filament-redirects.base_url') ?? config('app.url')), PHP_URL_HOST)]))
             ->icon('heroicon-o-arrows-right-left')
             ->schema([
                 ToggleButtons::make('type')

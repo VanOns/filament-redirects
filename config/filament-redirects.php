@@ -38,4 +38,9 @@ return [
         'base_url' => null,
         'user_agent' => 'Mozilla/5.0 (compatible; FilamentRedirects; +https://github.com/VanOns/filament-redirects)',
     ],
+
+    /**
+     * If the application URL is not where the redirects will be active, set the base URL for the redirects here
+     */
+    'base_url' => env('FILAMENT_REDIRECTS_BASE_URL'),
 ];
