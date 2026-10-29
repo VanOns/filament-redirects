@@ -2,6 +2,7 @@
 
 namespace VanOns\FilamentRedirects\Filament\Resources;
 
+use BackedEnum;
 use Carbon\CarbonInterface;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
@@ -37,6 +38,7 @@ use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use UnitEnum;
 use VanOns\FilamentRedirects\Actions\CheckDestinationAction;
 use VanOns\FilamentRedirects\Enums\DestinationHealth;
 use VanOns\FilamentRedirects\Enums\Type;
@@ -45,6 +47,7 @@ use VanOns\FilamentRedirects\Filament\Exports\RedirectExporter;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\CreateRedirect;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\EditRedirect;
 use VanOns\FilamentRedirects\Filament\Resources\RedirectResource\Pages\ListRedirects;
+use VanOns\FilamentRedirects\Helpers\RedirectHelper;
 use VanOns\FilamentRedirects\Jobs\CheckDestination;
 use VanOns\FilamentRedirects\Models\Redirect;
 use VanOns\FilamentRedirects\Rules\NoCircularRedirect;
@@ -56,9 +59,9 @@ class RedirectResource extends Resource
 {
     protected static ?string $model = Redirect::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-arrow-path';
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-arrow-path';
 
-    protected static string | \UnitEnum | null $navigationGroup = null;
+    protected static string | UnitEnum | null $navigationGroup = null;
 
     protected static ?string $recordTitleAttribute = 'from';
 
@@ -299,10 +302,10 @@ class RedirectResource extends Resource
      */
     public static function displayUrl(string $url): string
     {
-        $appUrl = rtrim((string) (config('filament-redirects.base_url') ?? config('app.url')), '/');
+        $baseUrl = RedirectHelper::getBaseUrl();
 
-        if ($appUrl !== '' && ($url === $appUrl || Str::startsWith($url, $appUrl.'/'))) {
-            $url = Str::after($url, $appUrl);
+        if ($baseUrl !== '' && ($url === $baseUrl || Str::startsWith($url, $baseUrl . '/'))) {
+            $url = Str::after($url, $baseUrl);
         }
 
         if (self::isUrl($url)) {
@@ -320,7 +323,7 @@ class RedirectResource extends Resource
         $toPath = fn (?string $state, Get $get): ?string => self::typeOf($get) !== Type::Replace && !self::isUrl($state) ? self::withoutSlashes($state, trailing: false) : $state;
 
         return Section::make(__('filament-redirects::general.redirect_details'))
-            ->description(__('filament-redirects::general.paths_on', ['host' => parse_url((string) (config('filament-redirects.base_url') ?? config('app.url')), PHP_URL_HOST)]))
+            ->description(__('filament-redirects::general.paths_on', ['host' => parse_url(RedirectHelper::getBaseUrl(), PHP_URL_HOST)]))
             ->icon('heroicon-o-arrows-right-left')
             ->schema([
                 ToggleButtons::make('type')
