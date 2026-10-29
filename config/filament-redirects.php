@@ -40,7 +40,7 @@ return [
     ],
 
     /**
-     * If the application URL is not where the redirects will be active, set the base URL for the redirects here
+     * If the application URL is not where the redirects will be active, set the base URL for the redirects here.
      */
     'base_url' => env('FILAMENT_REDIRECTS_BASE_URL'),
 ];
