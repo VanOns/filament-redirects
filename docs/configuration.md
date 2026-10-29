@@ -9,7 +9,7 @@ through unchanged.
 To disable this, set `add_middleware` to `false` in the config file, or add the following to your
 `.env` file:
 
-```env
+```dotenv
 FILAMENT_REDIRECTS_ADD_MIDDLEWARE=false
 ```
 
@@ -24,7 +24,7 @@ every request, so it catches a much broader set of cases.
 To enable the fallback route, set `add_route` to `true` in the config file, or add the following
 to your `.env` file:
 
-```env
+```dotenv
 FILAMENT_REDIRECTS_ADD_ROUTE=true
 ```
 
@@ -65,7 +65,7 @@ The package can check whether the destination of each redirect still works, so a
 page that is gone does not go unnoticed. The checks request every destination, so they are off by default. Turn them
 on in the config file, or add the following to your `.env` file:
 
-```env
+```dotenv
 FILAMENT_REDIRECTS_CHECKS_ENABLED=true
 ```
 
@@ -160,4 +160,16 @@ class AdminPanelProvider extends PanelProvider
         );
     }
 }
+```
+
+## Using a different base URL
+
+If you want to use the package to manage redirect for a different application, you will need should set the base URL for
+this host.
+This will ensure the redirect buttons & checks refer to the correct URLs.
+
+To do so, simple set `FILAMENT_REDIRECTS_BASE_URL` to the base URL of the application that will use the redirects:
+
+```dotenv
+FILAMENT_REDIRECTS_BASE_URL=https://other-website.com
 ```
