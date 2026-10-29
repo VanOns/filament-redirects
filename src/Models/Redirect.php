@@ -15,6 +15,7 @@ use InvalidArgumentException;
 use VanOns\FilamentRedirects\Enums\DestinationHealth;
 use VanOns\FilamentRedirects\Enums\Keys;
 use VanOns\FilamentRedirects\Enums\Type;
+use VanOns\FilamentRedirects\Helpers\RedirectHelper;
 
 /**
  * @property int $id
@@ -77,7 +78,7 @@ class Redirect extends Model
     }
 
     /**
-     * @param  Builder<Redirect>  $query
+     * @param Builder<Redirect> $query
      * @return Builder<Redirect>
      *
      * @throws InvalidArgumentException
@@ -93,7 +94,7 @@ class Redirect extends Model
      */
     public static function pattern(string $from): string
     {
-        return '#'.str_replace('#', '\#', $from).'#';
+        return '#' . str_replace('#', '\#', $from) . '#';
     }
 
     public function matches(string $path): bool
@@ -111,9 +112,9 @@ class Redirect extends Model
      */
     private function staysWithinItsDestination(string $path): bool
     {
-        $origin = self::origin((string) $this->destinationFor($path));
+        $origin = self::origin((string)$this->destinationFor($path));
 
-        return $origin === null || $origin === self::origin((string) preg_replace(self::GROUP_REFERENCE, '', (string) $this->to));
+        return $origin === null || $origin === self::origin((string)preg_replace(self::GROUP_REFERENCE, '', (string)$this->to));
     }
 
     /**
@@ -128,7 +129,7 @@ class Redirect extends Model
 
         $parts = parse_url($url) ?: [];
 
-        return strtolower(($parts['scheme'] ?? '').'://'.($parts['host'] ?? '').(isset($parts['port']) ? ':'.$parts['port'] : ''));
+        return strtolower(($parts['scheme'] ?? '') . '://' . ($parts['host'] ?? '') . (isset($parts['port']) ? ':' . $parts['port'] : ''));
     }
 
     private function matchesPattern(string $path): bool
@@ -164,7 +165,7 @@ class Redirect extends Model
     public function resolve(string $url): ?string
     {
         // the same path a request gets: `/` for the home page, without slashes around anything else
-        $path = trim((string) parse_url($url, PHP_URL_PATH), '/');
+        $path = trim((string)parse_url($url, PHP_URL_PATH), '/');
         $path = $path === '' ? '/' : $path;
 
         if (!$this->matches($path)) {
@@ -179,18 +180,18 @@ class Redirect extends Model
      */
     public function checkableDestination(): ?string
     {
-        $to = (string) $this->to;
+        $to = (string)$this->to;
 
         $dependsOnVisitedUrl = $this->type === Type::Replace
             || ($this->type === Type::Match && preg_match(self::GROUP_REFERENCE, $to) === 1);
 
         return match (true) {
             $dependsOnVisitedUrl => null,
-            str_starts_with($to, '//') => 'https:'.$to,
+            str_starts_with($to, '//') => 'https:' . $to,
             preg_match('#^https?://#i', $to) === 1 => $to,
             // mailto:, tel: and the like are no page to request
             app(UrlGenerator::class)->isValidUrl($to) => null,
-            default => rtrim((string) (config('filament-redirects.checks.base_url') ?? config('app.url')), '/').'/'.ltrim($to, '/'),
+            default => RedirectHelper::getBaseUrl(true) . '/' . ltrim($to, '/'),
         };
     }
 
@@ -206,7 +207,7 @@ class Redirect extends Model
         return match ($this->type) {
             Type::Static => $this->to,
             Type::Match => $this->fillCapturedGroups($path),
-            Type::Replace => str_replace($this->from, (string) $this->to, $path),
+            Type::Replace => str_replace($this->from, (string)$this->to, $path),
         };
     }
 
@@ -223,9 +224,9 @@ class Redirect extends Model
         return preg_replace_callback(
             self::GROUP_REFERENCE,
             function (array $reference) use ($groups): string {
-                $group = (int) ($reference[1] ?? $reference[2]);
+                $group = (int)($reference[1] ?? $reference[2]);
 
-                return array_key_exists($group, $groups) ? (string) $groups[$group] : (string) $reference[0];
+                return array_key_exists($group, $groups) ? (string)$groups[$group] : (string)$reference[0];
             },
             $this->to,
             flags: PREG_UNMATCHED_AS_NULL,
@@ -239,11 +240,11 @@ class Redirect extends Model
             return $url;
         }
 
-        $url = (string) $url;
-        $fragment = str_contains($url, '#') ? '#'.Str::after($url, '#') : '';
+        $url = (string)$url;
+        $fragment = str_contains($url, '#') ? '#' . Str::after($url, '#') : '';
         $url = Str::before($url, '#');
 
-        return $url.(str_contains($url, '?') ? '&' : '?').$query.$fragment;
+        return $url . (str_contains($url, '?') ? '&' : '?') . $query . $fragment;
     }
 
     protected static function booted(): void

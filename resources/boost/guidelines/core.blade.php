@@ -65,8 +65,9 @@ class AdminPanelProvider extends PanelProvider
 | `checks.schedule` | `'0 3 * * *'` | Cron expression. `null` to schedule `filament-redirects:check` yourself. |
 | `checks.queue` | `null` | Queue for the check jobs. |
 | `checks.timeout` | `10` | Seconds per request. |
-| `checks.base_url` | `null` | Host for relative destinations instead of `app.url`. |
+| `checks.base_url` | `null` | Host for checking relative destinations instead of `app.url` or `filament-redirects.base_url`. |
 | `checks.user_agent` | `Mozilla/5.0 (compatible; FilamentRedirects; …)` | Sent by the checks. Requests with it do not count as a hit. |
+| `base_url` | `null` | Host for relative destinations instead of `app.url`. |
 
 Publish tags: `vanons-filament-redirects-migrations`, `vanons-filament-redirects-config`, `vanons-filament-redirects-translations`.
 
