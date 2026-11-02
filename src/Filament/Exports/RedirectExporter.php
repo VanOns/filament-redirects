@@ -6,6 +6,7 @@ use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
 use Illuminate\Support\Number;
+use VanOns\FilamentRedirects\Enums\Type;
 use VanOns\FilamentRedirects\Models\Redirect;
 
 class RedirectExporter extends Exporter
@@ -19,8 +20,9 @@ class RedirectExporter extends Exporter
                 ->label(__('filament-redirects::general.from'))),
             self::escaped(ExportColumn::make('to')
                 ->label(__('filament-redirects::general.to'))),
-            self::escaped(ExportColumn::make('type')
-                ->label(__('filament-redirects::general.type'))),
+            ExportColumn::make('type')
+                ->label(__('filament-redirects::general.type'))
+                ->formatStateUsing(fn (Type $state): string => $state->value),
             ExportColumn::make('status_code')
                 ->label(__('filament-redirects::general.status_code')),
             ExportColumn::make('include_headers')
