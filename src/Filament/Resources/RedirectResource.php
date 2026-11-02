@@ -240,7 +240,7 @@ class RedirectResource extends Resource
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('gray')
                     ->iconButton()
-                    ->url(fn (Redirect $record) => url($record->from), true)
+                    ->url(fn (Redirect $record) => RedirectHelper::getBaseUrl() . $record->from, true)
                     ->visible(fn (Redirect $record) => $record->type === Type::Static),
                 EditAction::make()
                     ->iconButton(),
