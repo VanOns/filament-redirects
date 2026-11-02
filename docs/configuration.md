@@ -164,11 +164,11 @@ class AdminPanelProvider extends PanelProvider
 
 ## Using a different base URL
 
-If you want to use the package to manage redirect for a different application, you will need should set the base URL for
+If you want to use the package to manage redirects for a different application, you will need to set the base URL for
 this host.
 This will ensure the redirect buttons & checks refer to the correct URLs.
 
-To do so, simple set `FILAMENT_REDIRECTS_BASE_URL` to the base URL of the application that will use the redirects:
+To do so, simply set `FILAMENT_REDIRECTS_BASE_URL` to the base URL of the application that will use the redirects:
 
 ```dotenv
 FILAMENT_REDIRECTS_BASE_URL=https://other-website.com
