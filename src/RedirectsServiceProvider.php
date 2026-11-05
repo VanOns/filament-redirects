@@ -44,7 +44,7 @@ class RedirectsServiceProvider extends PackageServiceProvider
                 $schedule->command(CheckDestinationsCommand::class)->cron($cron);
             });
 
-            // The tag from before v2.7; it keeps working until v3.
+            // The vanons- tags are from before v2.7; they keep working until v3.
             $this->publishes(
                 paths: static::pathsToPublish(static::class, 'filament-redirects-migrations'),
                 groups: 'vanons-filament-redirects-migrations',
@@ -54,14 +54,14 @@ class RedirectsServiceProvider extends PackageServiceProvider
                 paths: [
                     __DIR__.'/../config/filament-redirects.php' => config_path('filament-redirects.php'),
                 ],
-                groups: 'vanons-filament-redirects-config'
+                groups: ['filament-redirects-config', 'vanons-filament-redirects-config'],
             );
 
             $this->publishes(
                 paths: [
                     __DIR__.'/../lang' => lang_path('vendor/filament-redirects'),
                 ],
-                groups: 'vanons-filament-redirects-translations'
+                groups: ['filament-redirects-lang', 'vanons-filament-redirects-translations'],
             );
         }
     }

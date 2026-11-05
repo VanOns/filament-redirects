@@ -35,10 +35,12 @@ it('publishes each migration once, also next to ones an app published before', f
         ->and(preg_grep('/_create_redirects_table\.php$/', publishedMigrations()))->toHaveCount(1);
 });
 
-it('keeps the tag from before v2.7', function (string $old, string $new) {
+it('keeps the tags from before v2.7', function (string $old, string $new) {
     expect(ServiceProvider::pathsToPublish(RedirectsServiceProvider::class, $old))
         ->not->toBeEmpty()
         ->toBe(ServiceProvider::pathsToPublish(RedirectsServiceProvider::class, $new));
 })->with([
     ['vanons-filament-redirects-migrations', 'filament-redirects-migrations'],
+    ['vanons-filament-redirects-config', 'filament-redirects-config'],
+    ['vanons-filament-redirects-translations', 'filament-redirects-lang'],
 ]);

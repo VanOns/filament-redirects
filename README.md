@@ -25,7 +25,7 @@ composer require van-ons/filament-redirects:^2.0
 Next, publish and run the migrations:
 
 ```sh
-php artisan vendor:publish --tag=vanons-filament-redirects-migrations
+php artisan vendor:publish --tag=filament-redirects-migrations
 php artisan migrate
 ```
 

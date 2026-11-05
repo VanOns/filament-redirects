@@ -11,12 +11,22 @@ migration again under a new date, after which `php artisan migrate` failed on a 
 left duplicates in `database/migrations`, delete the copies that were never run (`php artisan migrate:status` shows
 them as pending).
 
+The publish tags lost their `vanons-` prefix, and the translations tag is now called `-lang`:
+
+| Before | Now |
+|---|---|
+| `vanons-filament-redirects-migrations` | `filament-redirects-migrations` |
+| `vanons-filament-redirects-config` | `filament-redirects-config` |
+| `vanons-filament-redirects-translations` | `filament-redirects-lang` |
+
+The old tags keep working until v3.
+
 ## v2.5.0
 
 Redirects can now have their destination checked. A new migration adds the columns for the result. Publish and run it:
 
 ```bash
-php artisan vendor:publish --tag=vanons-filament-redirects-migrations
+php artisan vendor:publish --tag=filament-redirects-migrations
 php artisan migrate
 ```
 
@@ -28,7 +38,7 @@ A static redirect is now looked up by its path instead of loading every active r
 migration adds the index that lookup uses. Publish and run it:
 
 ```bash
-php artisan vendor:publish --tag=vanons-filament-redirects-migrations
+php artisan vendor:publish --tag=filament-redirects-migrations
 php artisan migrate
 ```
 
