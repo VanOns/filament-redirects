@@ -57,9 +57,12 @@ for importing, and `exports` for exporting. These are created by the package mig
 sure you have published and run them:
 
 ```sh
-php artisan vendor:publish --tag=vanons-filament-redirects-migrations
+php artisan vendor:publish --tag=filament-redirects-migrations
 php artisan migrate
 ```
+
+These are the same tables Filament's own import and export actions use. If the app already published Filament's
+migrations for them, the package skips its copies.
 
 ## Queue & notifications table
 

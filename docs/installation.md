@@ -9,7 +9,7 @@ composer require van-ons/filament-redirects:^2.0
 Next, publish and run the migrations:
 
 ```sh
-php artisan vendor:publish --tag=vanons-filament-redirects-migrations
+php artisan vendor:publish --tag=filament-redirects-migrations
 php artisan migrate
 ```
 
@@ -32,5 +32,5 @@ class AdminPanelProvider extends PanelProvider
 If needed, you can also publish the configuration file:
 
 ```bash
-php artisan vendor:publish --tag=vanons-filament-redirects-config
+php artisan vendor:publish --tag=filament-redirects-config
 ```

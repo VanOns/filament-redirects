@@ -7,7 +7,7 @@ Manages HTTP redirects through a Filament resource. Ships an Eloquent-backed `re
 @verbatim
 <code-snippet name="Install + publish migrations" lang="bash">
 composer require van-ons/filament-redirects
-php artisan vendor:publish --tag=vanons-filament-redirects-migrations
+php artisan vendor:publish --tag=filament-redirects-migrations
 php artisan migrate
 </code-snippet>
 @endverbatim
@@ -69,7 +69,7 @@ class AdminPanelProvider extends PanelProvider
 | `checks.user_agent` | `Mozilla/5.0 (compatible; FilamentRedirects; …)` | Sent by the checks. Requests with it do not count as a hit. |
 | `base_url` | `null` | Host for relative destinations instead of `app.url`. |
 
-Publish tags: `vanons-filament-redirects-migrations`, `vanons-filament-redirects-config`, `vanons-filament-redirects-translations`.
+Publish tags: `filament-redirects-migrations`, `filament-redirects-config`, `filament-redirects-lang`. The `vanons-` tags from before v2.7 still work. Publishing the migrations again only adds the ones the app does not have yet.
 
 ### Conventions
 
