@@ -69,7 +69,7 @@ class AdminPanelProvider extends PanelProvider
 | `checks.user_agent` | `Mozilla/5.0 (compatible; FilamentRedirects; …)` | Sent by the checks. Requests with it do not count as a hit. |
 | `base_url` | `null` | Host for relative destinations instead of `app.url`. |
 
-Publish tags: `vanons-filament-redirects-migrations`, `vanons-filament-redirects-config`, `vanons-filament-redirects-translations`.
+Publish tags: `vanons-filament-redirects-migrations`, `vanons-filament-redirects-config`, `vanons-filament-redirects-translations`. Publishing the migrations again only adds the ones the app does not have yet.
 
 ### Conventions
 

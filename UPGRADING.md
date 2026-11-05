@@ -4,6 +4,13 @@ We aim to make upgrading between versions as smooth as possible, but sometimes i
 This document will outline those steps. And as much as we try to cover all cases, we might miss some. If you come
 across such a case, please let us know by [opening an issue](https://github.com/VanOns/filament-redirects/issues), or by adding it yourself and creating a pull request.
 
+## v2.7.0
+
+Publishing the migrations again now only adds the ones the app does not have yet. Before, it published every
+migration again under a new date, after which `php artisan migrate` failed on a table that already existed. If that
+left duplicates in `database/migrations`, delete the copies that were never run (`php artisan migrate:status` shows
+them as pending).
+
 ## v2.5.0
 
 Redirects can now have their destination checked. A new migration adds the columns for the result. Publish and run it:

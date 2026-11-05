@@ -4,13 +4,22 @@ namespace VanOns\FilamentRedirects;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Http\Kernel;
-use Illuminate\Support\ServiceProvider;
+use Spatie\LaravelPackageTools\Package;
+use Spatie\LaravelPackageTools\PackageServiceProvider;
 use VanOns\FilamentRedirects\Commands\CheckDestinationsCommand;
 use VanOns\FilamentRedirects\Middleware\RedirectMiddleware;
 
-class RedirectsServiceProvider extends ServiceProvider
+class RedirectsServiceProvider extends PackageServiceProvider
 {
-    public function boot(): void
+    public function configurePackage(Package $package): void
+    {
+        // Recognises migrations an app already published, whatever their date, so publishing again only adds new ones.
+        $package
+            ->name('filament-redirects')
+            ->discoversMigrations();
+    }
+
+    public function packageBooted(): void
     {
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
 
@@ -35,10 +44,9 @@ class RedirectsServiceProvider extends ServiceProvider
                 $schedule->command(CheckDestinationsCommand::class)->cron($cron);
             });
 
-            $this->publishesMigrations(
-                paths: [
-                    __DIR__.'/../database/migrations' => database_path('migrations'),
-                ],
+            // The tag from before v2.7; it keeps working until v3.
+            $this->publishes(
+                paths: static::pathsToPublish(static::class, 'filament-redirects-migrations'),
                 groups: 'vanons-filament-redirects-migrations',
             );
 
