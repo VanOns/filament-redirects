@@ -1,7 +1,11 @@
 <?php
 
+use Illuminate\Console\Events\CommandFinished;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use VanOns\FilamentRedirects\RedirectsServiceProvider;
 
 function publishedMigrations(): array
@@ -11,6 +15,14 @@ function publishedMigrations(): array
         ->reject(fn (string $name): bool => str_starts_with($name, '0001_01_01_'))
         ->values()
         ->all();
+}
+
+// Laravel only sends CommandFinished outside unit tests, so the tests send it themselves.
+function outputAfter(string $command): string
+{
+    event(new CommandFinished($command, new ArrayInput([]), $output = new BufferedOutput(), 0));
+
+    return $output->fetch();
 }
 
 afterEach(function () {
@@ -44,3 +56,33 @@ it('keeps the tags from before v2.7', function (string $old, string $new) {
     ['vanons-filament-redirects-config', 'filament-redirects-config'],
     ['vanons-filament-redirects-translations', 'filament-redirects-lang'],
 ]);
+
+it('names the migrations an app has neither published nor run after migrate', function () {
+    DB::table('migrations')->delete();
+
+    expect(outputAfter('migrate'))
+        ->toContain('filament-redirects has 7 migrations that are not published')
+        ->toContain('create_redirects_table')
+        ->toContain('php artisan vendor:publish --tag=filament-redirects-migrations')
+        ->and(outputAfter('migrate:status'))->toBe('');
+});
+
+it('stays quiet once the migrations are published', function () {
+    DB::table('migrations')->delete();
+    $this->artisan('vendor:publish', ['--tag' => 'filament-redirects-migrations'])->assertSuccessful();
+
+    expect(outputAfter('migrate'))->toBe('');
+});
+
+it('stays quiet about migrations that ran but whose files are gone, as after schema:dump --prune', function () {
+    DB::table('migrations')->delete();
+
+    foreach (File::files(__DIR__.'/../../database/migrations') as $file) {
+        DB::table('migrations')->insert([
+            'migration' => '2020_01_01_000000_'.preg_replace('/^\d{4}_\d{2}_\d{2}_\d{6}_/', '', $file->getBasename('.php')),
+            'batch' => 1,
+        ]);
+    }
+
+    expect(outputAfter('migrate'))->toBe('');
+});

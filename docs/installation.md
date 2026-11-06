@@ -13,6 +13,9 @@ php artisan vendor:publish --tag=filament-redirects-migrations
 php artisan migrate
 ```
 
+After an update, publish the migrations again; only the new ones are added. `php artisan migrate` warns about
+migrations of this package that are not published yet.
+
 Finally, add the plugin to your Filament panel provider:
 
 ```php

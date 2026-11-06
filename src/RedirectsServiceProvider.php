@@ -2,11 +2,13 @@
 
 namespace VanOns\FilamentRedirects;
 
+use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Http\Kernel;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use VanOns\FilamentRedirects\Commands\CheckDestinationsCommand;
+use VanOns\FilamentRedirects\Listeners\WarnAboutUnpublishedMigrations;
 use VanOns\FilamentRedirects\Middleware\RedirectMiddleware;
 
 class RedirectsServiceProvider extends PackageServiceProvider
@@ -33,6 +35,11 @@ class RedirectsServiceProvider extends PackageServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([CheckDestinationsCommand::class]);
+
+            $this->app['events']->listen(CommandFinished::class, [
+                new WarnAboutUnpublishedMigrations(static::class, $this->package->name, $this->package->shortName().'-migrations'),
+                'handle',
+            ]);
 
             $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
                 $cron = config('filament-redirects.checks.schedule');
