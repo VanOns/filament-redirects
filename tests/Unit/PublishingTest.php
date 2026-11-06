@@ -61,7 +61,7 @@ it('names the migrations an app has neither published nor run after migrate', fu
     DB::table('migrations')->delete();
 
     expect(outputAfter('migrate'))
-        ->toContain('filament-redirects has 7 migrations that are not published')
+        ->toContain('Migrations of filament-redirects that are not published: ')
         ->toContain('create_redirects_table')
         ->toContain('php artisan vendor:publish --tag=filament-redirects-migrations')
         ->and(outputAfter('migrate:status'))->toBe('');
